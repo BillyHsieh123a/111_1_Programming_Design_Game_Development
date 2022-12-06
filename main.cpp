@@ -283,6 +283,8 @@ private:
 	int itemRecord;
 	//private functions
 	void checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
+    void printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
+
 public:
 	//public variables
 	int direction;//enemy might don't need this
@@ -330,7 +332,7 @@ Enemy::Enemy(const Enemy& e)
 	this->direction = e.direction;
 	this->enemyID = e.enemyID;
 	this->moveCnt = e.moveCnt;
-	this->itemRecord = 0;
+	this->itemRecord = e.itemRecord;
 }
 //member function
 void Enemy::enemySpawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
@@ -339,6 +341,31 @@ void Enemy::enemySpawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	cursorTo(this->pos.x, this->pos.y);
 	cout << "@";
 	return;
+}
+void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
+{
+    map[this->pos.y][this->pos.x] = this->itemRecord;
+    //print the Item out
+    cursorTo(this->pos.x, this->pos.y);
+    switch(this->itemRecord)
+    {
+        case 2:
+            SetConsoleTextAttribute(hConsole, 14);
+            cout << "B";
+            SetConsoleTextAttribute(hConsole, 15);
+            break;
+        case 3:
+            SetConsoleTextAttribute(hConsole, 10);
+            cout << "H";
+            SetConsoleTextAttribute(hConsole, 15);
+            break;
+        case 4:
+            SetConsoleTextAttribute(hConsole, 11);
+            cout << "$";
+            SetConsoleTextAttribute(hConsole, 15);
+            break;
+    }
+    this->itemRecord = 0;
 }
 void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
 {
@@ -352,30 +379,10 @@ void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for ever
 			score--;
 			this->HP = 0;
 		}
-		else if (this->itemRecord != 0 && map[this->pos.y][this->pos.x] == 99)
+		else if (this->itemRecord != 0 && map[this->pos.y][this->pos.x] == -99)
 		{
-			map[this->pos.y][this->pos.x] = this->itemRecord;
-			//print the Item out
-		    cursorTo(this->pos.x, this->pos.y);
-		    switch(this->itemRecord)
-		    {
-		    	case 2:
-		    		SetConsoleTextAttribute(hConsole, 14);
-		            cout << "B";
-		            SetConsoleTextAttribute(hConsole, 15);
-		    		break;
-		    	case 3:
-		    		SetConsoleTextAttribute(hConsole, 10);
-		            cout << "H";
-		            SetConsoleTextAttribute(hConsole, 15);
-		    		break;
-		    	case 4:
-		    		SetConsoleTextAttribute(hConsole, 11);
-		            cout << "$";
-		            SetConsoleTextAttribute(hConsole, 15);
-		    		break;
-			}
-			this->itemRecord = 0;
+			printBackRecord(map);
+            this->HP = 0;
 		}
 		else
 		{
@@ -429,28 +436,7 @@ void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for ever
 		this->moveCnt = 0;
 		if (this->itemRecord != 0)
 		{
-			map[this->pos.y][this->pos.x] = this->itemRecord;
-			//print the Item out
-		    cursorTo(this->pos.x, this->pos.y);
-		    switch(this->itemRecord)
-		    {
-		    	case 2:
-		    		SetConsoleTextAttribute(hConsole, 14);
-		            cout << "B";
-		            SetConsoleTextAttribute(hConsole, 15);
-		    		break;
-		    	case 3:
-		    		SetConsoleTextAttribute(hConsole, 10);
-		            cout << "H";
-		            SetConsoleTextAttribute(hConsole, 15);
-		    		break;
-		    	case 4:
-		    		SetConsoleTextAttribute(hConsole, 11);
-		            cout << "$";
-		            SetConsoleTextAttribute(hConsole, 15);
-		    		break;
-			}
-			this->itemRecord = 0;
+			printBackRecord(map);
 		}
 		else
 		{

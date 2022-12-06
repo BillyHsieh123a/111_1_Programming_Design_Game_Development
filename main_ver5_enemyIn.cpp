@@ -1164,7 +1164,6 @@ void delayPrint(string s)
 	Sleep(1000);
 	system("cls");
 	return;
-	//test tingggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
 }
 
 

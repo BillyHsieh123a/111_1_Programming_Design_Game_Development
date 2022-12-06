@@ -277,7 +277,7 @@ int Player::getPlayerHP()
 //Enemy
 class Enemy
 {
-private:
+protected:
 	Position pos;
 	int speed;
 	int HP;//alive true or false
@@ -288,7 +288,6 @@ private:
 	//private functions
 	void checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
     void printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
-
 public:
 	//public variables
 	int direction;//enemy might don't need this
@@ -299,7 +298,7 @@ public:
 	Enemy(const Enemy& e);
 	//member functions
 	void enemySpawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
-	void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);//put this into the main while loop, if (e1.getEnemyHP != 0)
+	virtual void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]) = 0;//put this into the main while loop, if (e1.getEnemyHP != 0)
 	Position getEnemyPos();
 	int getEnemyHP();
 };
@@ -375,6 +374,87 @@ void Enemy::printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ fo
     this->itemRecord = 0;
 }
 void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
+{
+	
+}
+void Enemy::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+{
+	//get front ID
+	int front = map[checkPos.y][checkPos.x];
+	//then...
+	if (front != 0)//front is not 0(blank)
+	{
+		if (front == -1)//front is player
+		{
+			attacked += this->ATK;
+			this->HP = 0;
+			score--;
+		}
+		else if (front >= 2 && front <= 4)//front is item
+		{
+			//record the itemType
+			this->itemRecord = front;
+	        //adjust enemy position
+			this->pos = checkPos;
+		    map[this->pos.y][this->pos.x] = enemyID;
+		    cursorTo(this->pos.x, this->pos.y);//moving cursor to the new position
+            SetConsoleTextAttribute(hConsole, 9);
+            cout << "@";
+            SetConsoleTextAttribute(hConsole, 15);
+			//move and print the turned(or maybe we can just don't do this)
+		}
+	}
+	else
+	{
+        //adjust enemy position
+    	this->pos = checkPos;
+        map[this->pos.y][this->pos.x] = enemyID;
+        cursorTo(this->pos.x, this->pos.y);//moving cursor to the new position
+        SetConsoleTextAttribute(hConsole, 9);
+        cout << "@";
+        SetConsoleTextAttribute(hConsole, 15);
+	}
+	return;
+}
+Position Enemy::getEnemyPos()
+{
+	return this->pos;
+}
+int Enemy::getEnemyHP()
+{
+	return this->HP;
+}
+
+//right  Clockwise
+class EnemyWiseClock : public Enemy
+{
+private:
+	
+public:
+	//constructors
+	EnemyWiseClock();
+	EnemyWiseClock(Position p, int s, int h, int a, int d, int i);
+	//copy constructor
+	EnemyWiseClock(const EnemyWiseClock& e);
+	//member function
+	void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
+};
+//constructor
+EnemyWiseClock::EnemyWiseClock()
+{
+	
+}
+EnemyWiseClock::EnemyWiseClock(Position p, int s, int h, int a, int d, int i) : Enemy(p, s, h, a, d, i)
+{
+	
+}
+//copy constructor
+EnemyWiseClock::EnemyWiseClock(const EnemyWiseClock& e) : Enemy(e)
+{
+	
+}
+//memner function
+void EnemyWiseClock::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	//if enemy has died
 	if (this->HP == 0 || map[this->pos.y][this->pos.x] == -99 || map[this->pos.y][this->pos.x] == -1)
@@ -456,52 +536,117 @@ void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for ever
 	}	
 	return;
 }
-void Enemy::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+
+//counter
+class EnemyCounterClockWise : public Enemy
 {
-	//get front ID
-	int front = map[checkPos.y][checkPos.x];
-	//then...
-	if (front != 0)//front is not 0(blank)
+private:
+	
+public:
+	//constructors
+	EnemyCounterClockWise();
+	EnemyCounterClockWise(Position p, int s, int h, int a, int d, int i);
+	//copy constructor
+	EnemyCounterClockWise(const EnemyCounterClockWise& e);
+	//member function
+	void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
+};
+//constructor
+EnemyCounterClockWise::EnemyCounterClockWise()
+{
+	
+}
+EnemyCounterClockWise::EnemyCounterClockWise(Position p, int s, int h, int a, int d, int i) : Enemy(p, s, h, a, d, i)
+{
+	
+}
+//copy constructor
+EnemyCounterClockWise::EnemyCounterClockWise(const EnemyCounterClockWise& e) : Enemy(e)
+{
+	
+}
+//memner function
+void EnemyCounterClockWise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+{
+	//if enemy has died
+	if (this->HP == 0 || map[this->pos.y][this->pos.x] == -99 || map[this->pos.y][this->pos.x] == -1)
 	{
-		if (front == -1)//front is player
+		//if bumped by player
+		if (map[this->pos.y][this->pos.x] == -1 && this->HP > 0)
 		{
-			attacked += this->ATK;
-			this->HP = 0;
+			attacked = this->ATK;
 			score--;
+			this->HP = 0;
 		}
-		else if (front >= 2 && front <= 4)//front is item
+		else if (this->itemRecord != 0 && map[this->pos.y][this->pos.x] == -99)
 		{
-			//record the itemType
-			this->itemRecord = front;
-	        //adjust enemy position
-			this->pos = checkPos;
-		    map[this->pos.y][this->pos.x] = enemyID;
-		    cursorTo(this->pos.x, this->pos.y);//moving cursor to the new position
-            SetConsoleTextAttribute(hConsole, 9);
-            cout << "@";
-            SetConsoleTextAttribute(hConsole, 15);
-			//move and print the turned(or maybe we can just don't do this)
+			printBackRecord(map);
+            this->HP = 0;
+		}
+		else
+		{
+			this->HP = 0;
+			map[this->pos.y][this->pos.x] = 0;
+			cursorTo(this->pos.x, this->pos.y);
+			cout << " ";
+		}
+		return;
+	}
+	//enemy move speed
+	this->moveCnt += this->speed;
+	//deciding move direction
+	//clockwise
+	Position checkPos = this->pos;
+	switch(this->direction)
+	{
+		case 1://up
+			checkPos = {this->pos.x, this->pos.y - 1};
+			break;
+		case 2://down
+			checkPos = {this->pos.x, this->pos.y + 1};
+			break;
+		case 3://left
+			checkPos = {this->pos.x - 1, this->pos.y};
+			break;
+		case 4://right
+			checkPos = {this->pos.x + 1, this->pos.y};
+	}
+	//if front is not wall(any kind) or start/end point, change direction
+	if (map[checkPos.y][checkPos.x] == 1 || map[checkPos.y][checkPos.x] == 5 || map[checkPos.y][checkPos.x] > 100)
+	{
+		switch(this->direction)
+		{
+			case 1:
+				this->direction = 3;
+				break;
+			case 2:
+				this->direction = 4;
+				break;
+			case 3:
+				this->direction = 2;
+				break;
+			case 4:
+				this->direction = 1;
 		}
 	}
-	else
+	//if movable
+	if (this->moveCnt >= 40000)
 	{
-        //adjust enemy position
-    	this->pos = checkPos;
-        map[this->pos.y][this->pos.x] = enemyID;
-        cursorTo(this->pos.x, this->pos.y);//moving cursor to the new position
-        SetConsoleTextAttribute(hConsole, 9);
-        cout << "@";
-        SetConsoleTextAttribute(hConsole, 15);
-	}
+		this->moveCnt = 0;
+		if (this->itemRecord != 0)
+		{
+			printBackRecord(map);
+		}
+		else
+		{
+			//enemy disappear
+			map[this->pos.y][this->pos.x] = 0;
+			cursorTo(this->pos.x, this->pos.y);
+			cout << " ";
+		}
+		checkAndMove(checkPos, map);
+	}	
 	return;
-}
-Position Enemy::getEnemyPos()
-{
-	return this->pos;
-}
-int Enemy::getEnemyHP()
-{
-	return this->HP;
 }
 
 
@@ -531,16 +676,16 @@ int main()
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 2, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
@@ -559,6 +704,10 @@ int main()
 	Position spawnPos = {1, 18};
 	Player player(spawnPos, 5, 0, 1);
 	map[player.getPos().y][player.getPos().x] = -1;
+	//enemy(use array)
+    EnemyWiseClock e({10, 10}, 20, 3, 1, 4, 101);
+	EnemyCounterClockWise e2({1, 1}, 40, 3, 1, 3, 101);
+	
 	
 	//game status
     bool gameRunning = true;
@@ -569,23 +718,7 @@ int main()
     menu();
 
     //enemy(use array)
-	Enemy e({5, 6}, 1, 3, 2 , 4, 101);
-	Enemy e2({7, 8}, 2, 3, 2, 4, 101);
-    Enemy e3({9, 10}, 2, 3, 2, 4, 101);
-    Enemy e4({11, 11}, 2, 3, 2, 4, 101);
-    Enemy e5({9, 8}, 2, 3, 2, 4, 101);
-    Enemy e6({57, 7}, 2, 3, 2, 4, 101);
-    Enemy e7({70, 2}, 2, 3, 2, 4, 101);
-    Enemy e8({70, 18}, 2, 3, 2, 4, 101);
-    Enemy e9({72, 22}, 2, 3, 2, 4, 101);
-    Enemy e10({73, 19}, 2, 3, 2, 4, 101);
-    Enemy e11({47, 9}, 2, 3, 2, 4, 101);
-    Enemy e12({17, 1}, 2, 3, 2, 4, 101);
-    Enemy e13({87, 5}, 2, 3, 2, 4, 101);
-    Enemy e14({97, 12}, 2, 3, 2, 4, 101);
-    Enemy e15({37, 4}, 2, 3, 2, 4, 101);
-    Enemy e16({27, 3}, 2, 3, 2, 4, 101);
-    Enemy e17({17, 5}, 2, 3, 2, 4, 101);
+
 
 	//print map and info
     system("cls");

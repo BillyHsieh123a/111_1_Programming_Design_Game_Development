@@ -342,7 +342,7 @@ void Enemy::enemySpawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	cout << "@";
 	return;
 }
-void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
+void Enemy::printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
 {
     map[this->pos.y][this->pos.x] = this->itemRecord;
     //print the Item out

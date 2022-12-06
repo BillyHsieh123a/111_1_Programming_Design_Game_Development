@@ -88,21 +88,18 @@ void Player::printStatus()
 {
     cursorTo(0, MAP_SIZE_HEIGHT);
     //health
-	SetConsoleTextAttribute(hConsole, 8);
-    cout << "Health: ";
     SetConsoleTextAttribute(hConsole, 10);
+    cout << "Health: ";
     cout << health;
     //bullet
-    SetConsoleTextAttribute(hConsole, 8);
+    SetConsoleTextAttribute(hConsole, 14);
     cout << "\n";
     cout << "Bullet Number: ";
-    SetConsoleTextAttribute(hConsole, 14);
     cout << bulletNum;
     //score
-    SetConsoleTextAttribute(hConsole, 8);
+    SetConsoleTextAttribute(hConsole, 11);
     cout << "\n\n";
     cout << "Score: ";
-    SetConsoleTextAttribute(hConsole, 11);
     cout << score;
 	//done
     SetConsoleTextAttribute(hConsole, 15);
@@ -239,8 +236,12 @@ void Player::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_W
 	}
 	//player appear at new place and item(if is 2, 3, 4) disappear
     cursorTo(this->pos.x, this->pos.y);//moving cursor to the new position
+
+    SetConsoleTextAttribute(hConsole, 14);
+
     switch(this->direction)
-	{
+	{                
+
 		case 1:
 			printf("^");
 			break;
@@ -253,6 +254,9 @@ void Player::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_W
 		case 3:
 			printf("<");
 	}
+
+    SetConsoleTextAttribute(hConsole, 15);
+
 	return;
 }
 Position Player::getPos()
@@ -339,7 +343,9 @@ void Enemy::enemySpawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	map[this->pos.y][this->pos.x] = enemyID;
 	cursorTo(this->pos.x, this->pos.y);
+    SetConsoleTextAttribute(hConsole, 9);
 	cout << "@";
+    SetConsoleTextAttribute(hConsole, 15);
 	return;
 }
 void Enemy::printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
@@ -470,7 +476,9 @@ void Enemy::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WI
 			this->pos = checkPos;
 		    map[this->pos.y][this->pos.x] = enemyID;
 		    cursorTo(this->pos.x, this->pos.y);//moving cursor to the new position
-        	printf("@");
+            SetConsoleTextAttribute(hConsole, 9);
+            cout << "@";
+            SetConsoleTextAttribute(hConsole, 15);
 			//move and print the turned(or maybe we can just don't do this)
 		}
 	}
@@ -480,7 +488,9 @@ void Enemy::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WI
     	this->pos = checkPos;
         map[this->pos.y][this->pos.x] = enemyID;
         cursorTo(this->pos.x, this->pos.y);//moving cursor to the new position
-        printf("@");
+        SetConsoleTextAttribute(hConsole, 9);
+        cout << "@";
+        SetConsoleTextAttribute(hConsole, 15);
 	}
 	return;
 }
@@ -661,7 +671,7 @@ void menu()
     system("cls");
     int position = 1;
     bool change = false;
-    
+
     cursorTo(5, 5);
     cout << "    --> PLAY <--" << "\n";   
 
@@ -1093,6 +1103,8 @@ void printMap(int direction, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//clean sc
             }
             else if(map[i][j] == -1)//character direction indication
             {
+                SetConsoleTextAttribute(hConsole, 14);
+
                 if(direction == 1)//up
                     cout << "^";
                 else if(direction == 2)//down
@@ -1101,6 +1113,9 @@ void printMap(int direction, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//clean sc
                     cout << "<";
                 else if(direction == 4)//right
                     cout << ">";
+
+                SetConsoleTextAttribute(hConsole, 15);
+
             }
         }
         cout << "\n";

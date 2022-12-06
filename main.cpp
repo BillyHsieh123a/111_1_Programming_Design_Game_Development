@@ -1146,10 +1146,14 @@ void delayPrint(string s)
 		//skip
 		if (kbhit())
 		{
-			system("cls");
-			cout << s;
-			Sleep(1000);
-			return;
+			int ch = getch();
+			if (ch == 32)
+			{
+				system("cls");
+				cout << s;
+				Sleep(1000);
+				break;
+			}
 		}
 		//wait
 		if (timeCnt < 10000)
@@ -1163,12 +1167,23 @@ void delayPrint(string s)
 		//last print
 		if (i == s.length() - 1)
 		{
-			Sleep(1000);
+			Sleep(500);
 		}
 		i++;
 	}
-	Sleep(1000);
-	system("cls");
+	cout << "\n" << "\n";
+	cout << "                            press Space to continue...";
+	while(true)
+	{
+		if (kbhit())
+		{
+			int ch = getch();
+			if (ch == 32)
+			{
+				break;
+			}
+		}
+	}
 	return;
 }
 

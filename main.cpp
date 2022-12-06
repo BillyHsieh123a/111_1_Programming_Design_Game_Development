@@ -64,7 +64,7 @@ public:
 Player::Player()
 {
 	pos = {5, 5};
-	health = 5;
+	health = 3;
 	bulletNum = 0;
 	direction = 1;
 }
@@ -317,10 +317,11 @@ Enemy::Enemy()
 }
 Enemy::Enemy(Position p, int s, int h, int a, int d, int i)
 {
+
 	this->pos = p;
-	this->speed = s;
+	this->speed = s * modeNum;
 	this->HP = h;
-	this->ATK = a;
+	this->ATK = a * modeNum;
 	this->direction = d;
 	this->enemyID = i;
 	this->moveCnt = 0;
@@ -437,7 +438,7 @@ void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for ever
 		}
 	}
 	//if movable
-	if (this->moveCnt >= 40000)
+	if (this->moveCnt >= 10)
 	{
 		this->moveCnt = 0;
 		if (this->itemRecord != 0)
@@ -556,13 +557,9 @@ int main()
 	//character settings 
 	//player
 	Position spawnPos = {1, 18};
-	Player player(spawnPos, 5, 6, 1);
+	Player player(spawnPos, 5, 0, 1);
 	map[player.getPos().y][player.getPos().x] = -1;
-	//enemy(use array)
-	Enemy e({5, 6}, 1, 3, 1, 4, 101);
-	Enemy e2({7, 8}, 2, 3, 1, 4, 101);
 	
-
 	//game status
     bool gameRunning = true;
     
@@ -570,6 +567,25 @@ int main()
 
     // open menu
     menu();
+
+    //enemy(use array)
+	Enemy e({5, 6}, 1, 3, 2 , 4, 101);
+	Enemy e2({7, 8}, 2, 3, 2, 4, 101);
+    Enemy e3({9, 10}, 2, 3, 2, 4, 101);
+    Enemy e4({11, 11}, 2, 3, 2, 4, 101);
+    Enemy e5({9, 8}, 2, 3, 2, 4, 101);
+    Enemy e6({57, 7}, 2, 3, 2, 4, 101);
+    Enemy e7({70, 2}, 2, 3, 2, 4, 101);
+    Enemy e8({70, 18}, 2, 3, 2, 4, 101);
+    Enemy e9({72, 22}, 2, 3, 2, 4, 101);
+    Enemy e10({73, 19}, 2, 3, 2, 4, 101);
+    Enemy e11({47, 9}, 2, 3, 2, 4, 101);
+    Enemy e12({17, 1}, 2, 3, 2, 4, 101);
+    Enemy e13({87, 5}, 2, 3, 2, 4, 101);
+    Enemy e14({97, 12}, 2, 3, 2, 4, 101);
+    Enemy e15({37, 4}, 2, 3, 2, 4, 101);
+    Enemy e16({27, 3}, 2, 3, 2, 4, 101);
+    Enemy e17({17, 5}, 2, 3, 2, 4, 101);
 
 	//print map and info
     system("cls");
@@ -841,7 +857,7 @@ void mode()
                 cout << "    BACK TO MENU " << "\n";
                 bool change = false;
             }
-            else if(position == 2 && modeNum == 2 &&change == true)
+            else if(position == 2 && modeNum == 2 && change == true)
             {
                 system("cls");
                 cursorTo(5, 5);
@@ -852,7 +868,7 @@ void mode()
                 cout << "    BACK TO MENU " << "\n";
                 bool change = false;
             }
-            else if(position == 3 && modeNum == 1 &&change == true)
+            else if(position == 3 && modeNum == 1 && change == true)
             {
                 system("cls");
                 cursorTo(5, 5);
@@ -863,7 +879,7 @@ void mode()
                 cout << "--> BACK TO MENU <--" << "\n";   
                 bool change = false;
             }
-            else if(position == 3 && modeNum == 2 &&change == true)
+            else if(position == 3 && modeNum == 2 && change == true)
             {
                 system("cls");
                 cursorTo(5, 5);

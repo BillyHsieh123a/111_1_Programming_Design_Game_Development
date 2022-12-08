@@ -738,7 +738,7 @@ void printMap(int direction, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 //after game
 void gameEnding();
 void winning();
-void lose();
+void losing();
 
 ////////////////////////////////////////////////////   
 
@@ -750,7 +750,7 @@ int main()
 	//threads
 	// thread t1(playSound);
 	
-    //create map 
+    //create map (-2 is the end)
     int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH] = 
     {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -794,9 +794,9 @@ int main()
 	map[player.getPos().y][player.getPos().x] = -1;
     //enemy(use array)
 	EnemyTeam enemyTeam;
-	enemyTeam.addCEnemy({10, 10}, 20, 1, 4, 101);
-	enemyTeam.addCCEnemy({1, 1}, 40, 1, 3, 101);
-	enemyTeam.addCEnemy({1, 3}, 10, 1, 4, 101);
+	enemyTeam.addCEnemy({10, 10}, 20, 3, 4, 101);
+	enemyTeam.addCCEnemy({1, 1}, 40, 3, 3, 101);
+	enemyTeam.addCEnemy({1, 3}, 10, 3, 4, 101);
 
 	//print map and info
     system("cls");
@@ -867,15 +867,24 @@ int main()
         //game over
         if (player.getPlayerHP() <= 0)
         {
-//        	lose();
+        	cursorTo(player.getPos().x, player.getPos().y);
+        	Sleep(1000);
+        	cout << "/";
+        	cursorTo(player.getPos().x, player.getPos().y);
+        	Sleep(1000);
+        	cout << ".";
+        	cursorTo(player.getPos().x, player.getPos().y);
+        	Sleep(1000);
+        	cout << " ";
+        	cursorTo(player.getPos().x, player.getPos().y);
+        	Sleep(2000);
+        	losing();
         	gameRunning = false;
-        	gameEnding();
-        	break;
 		}
 		else if (win)
 		{
 			winning();
-			break;
+			gameRunning = false;
 		}
     }
 
@@ -1454,25 +1463,34 @@ void printMap(int direction, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//clean sc
 //after game
 void gameEnding()
 {
-	clock_t endTime = clock();
+//	clock_t endTime = clock();
     system("cls");
     cout << "GAME OVER!" << "\n" ;
     cout << "YOUR SCORE: " << score << "\n";
-    cout << "PLAYING TIME: " << endTime / CLOCKS_PER_SEC << "s" << "\n";
+//    cout << "PLAYING TIME: " << endTime / CLOCKS_PER_SEC << "s" << "\n";
 	return;
 }
 void winning()
 {
-	string line1 = "        Congratulation! You Won!\n        Let's see how many score you got!";
+	clock_t endTime = clock();
+	string line1 = "        Congratulation! You Won!\n        Let's see how much score did you get!";
 	delayPrint(line1);
 	string line2 = "so... the result is...!";
 	delayPrint(line2);
 	gameEnding();
+	cout << "PLAYING TIME: " << endTime / CLOCKS_PER_SEC << "s" << "\n";
 	return;
 }
-void lose()
+void losing()
 {
-	
+	string line1 = "     Oh... what a little poor guy...\n     How did you get here?\n     Wasn't anyone told you that here is the \"NIGHTMARE\"?";
+	delayPrint(line1);
+	string line2 = "...\nActually...\nI don't really care about how you get here";
+	delayPrint(line2);
+	string line3 = "Get lost! \n              You loser";
+	delayPrint(line3);
+	string line4 = "......\n (there is no result board since you have losen.)";
+	delayPrint(line4);
 	return;
 }
 

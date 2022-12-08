@@ -207,7 +207,7 @@ void Player::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_W
     			frontOfMW.y = this->pos.y;
 		}
 		//if movable
-    	if(map[frontOfMW.y][frontOfMW.x] != 1 && map[frontOfMW.y][frontOfMW.x] != 5)
+    	if(map[frontOfMW.y][frontOfMW.x] != 1 && map[frontOfMW.y][frontOfMW.x] != 5 && map[frontOfMW.y][frontOfMW.x] < 100)
         {
         	//player disappear
         	map[this->pos.y][this->pos.x] = 0;
@@ -1138,6 +1138,7 @@ void settings()
 
 void shoot(Position startPos, Position dir, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH], int range)
 {
+	bool metItem = false;
     for(int i = 0; i < range; i++)
     {
     	Position temp = {0};
@@ -1150,26 +1151,43 @@ void shoot(Position startPos, Position dir, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WI
             startPos.y += dir.y;
             cursorTo(startPos.x, startPos.y);
             cout << "o";
-            if(i != 0)
+            if(i != 0 && !metItem)
             {
                 Sleep(100);
                 cursorTo(startPos.x - dir.x, startPos.y - dir.y);
-                cout << " ";                    
+                cout << " ";                   
             }
+            metItem = false;
         }
+        //if front is enemy
         else if (map[temp.y][temp.x] > 100)
         {
         	if (i == 0)
         	{
         		map[temp.y][temp.x] = -99;
 			}
-        	else 
+        	else if(i != 0)
 			{
-				cursorTo(startPos.x, startPos.y);
-	        	cout << " ";
+				if (!metItem)
+				{
+					cursorTo(startPos.x, startPos.y);
+	        		cout << " ";
+				}
 	        	map[temp.y][temp.x] = -99;
 			}
         	return;
+		}
+		else if (map[temp.y][temp.x] <= 4 && map[temp.y][temp.x] >= 2)
+		{
+			startPos.x += dir.x;
+            startPos.y += dir.y;
+            if(i != 0 && !metItem)
+            {
+                Sleep(100);
+                cursorTo(startPos.x - dir.x, startPos.y - dir.y);
+                cout << " ";                    
+            }
+            metItem = true;
 		}
         //if front is wall
         else if(map[temp.y][temp.x] == 1)

@@ -9,6 +9,9 @@ using namespace std;
 //constants
 const int MAP_SIZE_WIDTH = 100; 
 const int MAP_SIZE_HEIGHT = 25;
+const int xStart = 50;
+const int yStart = 12;      
+const int yGap = 3; 
 //global settings
 int score = 0;
 int modeNum = 1;
@@ -821,13 +824,34 @@ void menu()
     int position = 1;
     bool change = false;
 
-    cursorTo(5, 5);
+	cursorTo(xStart - 13, yStart);
+	cout << " _   _ _____ _____  _   _ ________  ___  ___  ______ _____ \n";
+	Sleep(1000);
+	cursorTo(xStart - 13, yStart + 1);
+	cout << "| \\ | |_   _|  __ \\| | | |_   _|  \\/  | / _ \\ | ___ \\  ___| \n";
+	Sleep(1000);
+	cursorTo(xStart - 13, yStart + 2);
+	cout << "|  \\| | | | | |  \\/| |_| | | | | .  . |/ /_\\ \\| |_/ / |__ \n";
+	Sleep(1000);
+	cursorTo(xStart - 13, yStart + 3);
+	cout << "| . ` | | | | | __ |  _  | | | | |\\/| ||  _  ||    /|  __| \n";
+	Sleep(1000);
+	cursorTo(xStart - 13, yStart + 4);
+	cout << "| |\\  |_| |_| |_\\ \\| | | | | | | |  | || | | || |\\ \\| |___ \n";
+	Sleep(1000);
+	cursorTo(xStart - 13, yStart + 5);
+	cout << "\\_| \\_/\\___/ \\____/\\_| |_/ \\_/ \\_|  |_/\\_| |_/\\_| \\_\\____/ \n";
+	Sleep(5000);
+
+	system("cls");
+                                                                                                       
+    cursorTo(xStart, yStart);
     cout << "    --> PLAY <--" << "\n";   
 
-    cursorTo(5, 8);
+    cursorTo(xStart, yStart + yGap);
     cout << "        MODE " << "\n";   
 
-    cursorTo(5, 11);
+    cursorTo(xStart, yStart + yGap * 2);
     cout << "      SETTINGS" << "\n";           
 
     while(true)
@@ -860,22 +884,22 @@ void menu()
             if(position == 1 && change == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "    --> PLAY <--" << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "        MODE" << "\n"; 
-                cursorTo(5, 11);
+                cursorTo(xStart, yStart + yGap * 2);
                 cout << "      SETTINGS" << "\n";  
                 bool change = false;
             }
             else if(position == 2 && change == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "        PLAY" << "\n"; 
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "    --> MODE <--" << "\n"; 
-                cursorTo(5, 11);
+                cursorTo(xStart, yStart + yGap * 2);
                 cout << "      SETTINGS" << "\n";       
                 bool change = false;
            
@@ -883,11 +907,11 @@ void menu()
             else if(position == 3 && change == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "        PLAY" << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "        MODE" << "\n";   
-                cursorTo(5, 11);
+                cursorTo(xStart, yStart + yGap * 2);
                 cout << "  --> SETTINGS <--" << "\n";  
                 bool change = false;
             }
@@ -902,25 +926,25 @@ void mode()
 {
     system("cls");
     int position = 1;
-    bool change = false;
+    bool change = false;  
     
     if(modeNum == 1)
     {
-        cursorTo(5, 5);
+        cursorTo(xStart, yStart);
         cout << "   --> *EASY* <--" << "\n";   
-        cursorTo(5, 8);
+        cursorTo(xStart, yStart + yGap);
         cout << "        HARD " << "\n";  
-        cursorTo(5, 11);   
+        cursorTo(xStart, yStart + yGap * 2);   
         cout << "    BACK TO MENU " << "\n";    
     }
     else if(modeNum == 2)
     {
         position = 2;
-        cursorTo(5, 5);
+        cursorTo(xStart, yStart);
         cout << "        EASY " << "\n";   
-        cursorTo(5, 8);
+        cursorTo(xStart, yStart + yGap);
         cout << "   --> *HARD* <--" << "\n";  
-        cursorTo(5, 11);   
+        cursorTo(xStart, yStart + yGap * 2);   
         cout << "    BACK TO MENU " << "\n";            
     }
       
@@ -959,22 +983,22 @@ void mode()
             if(position == 1 && modeNum == 1 && change == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+        		cursorTo(xStart, yStart);
                 cout << "   --> *EASY* <--" << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "        HARD" << "\n";  
-                cursorTo(5, 11);   
+                cursorTo(xStart, yStart + yGap * 2);   
                 cout << "    BACK TO MENU " << "\n";   
                 bool change = false;
             }
             else if(position == 2 && modeNum == 1 && change == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+        		cursorTo(xStart, yStart);
                 cout << "       *EASY*" << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "    --> HARD <--" << "\n";      
-                cursorTo(5, 11);   
+                cursorTo(xStart, yStart + yGap * 2);   
                 cout << "    BACK TO MENU " << "\n";
                 bool change = false;
            
@@ -982,44 +1006,44 @@ void mode()
             else if(position == 1 && modeNum == 2 && change == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "    --> EASY <--" << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "       *HARD*" << "\n";   
-                cursorTo(5, 11);   
+                cursorTo(xStart, yStart + yGap * 2);   
                 cout << "    BACK TO MENU " << "\n";
                 bool change = false;
             }
             else if(position == 2 && modeNum == 2 && change == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "        EASY"  << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "   --> *HARD* <--" << "\n";   
-                cursorTo(5, 11);   
+                cursorTo(xStart, yStart + yGap * 2);   
                 cout << "    BACK TO MENU " << "\n";
                 bool change = false;
             }
             else if(position == 3 && modeNum == 1 && change == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "       *EASY* " << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "        HARD" << "\n";  
-                cursorTo(5, 11);   
+                cursorTo(xStart, yStart + yGap * 2);   
                 cout << "--> BACK TO MENU <--" << "\n";   
                 bool change = false;
             }
             else if(position == 3 && modeNum == 2 && change == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "        EASY"  << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "       *HARD*" << "\n";  
-                cursorTo(5, 11);   
+                cursorTo(xStart, yStart + yGap * 2);   
                 cout << "--> BACK TO MENU <--" << "\n";    
                 bool change = false;
             }            
@@ -1037,10 +1061,10 @@ void settings()
     bool change = false;
     bool mute = false;
     
-    cursorTo(5, 5);
+    cursorTo(xStart, yStart);
     cout << "  --> SOUND ON <--" << "\n";   
 
-    cursorTo(5, 8);
+    cursorTo(xStart, yStart + yGap);
     cout << "    BACK TO MENU " << "\n";           
 
     while(true)
@@ -1075,36 +1099,36 @@ void settings()
             if(position == 1 && change == true && mute == false)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "  --> SOUND ON <--" << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "    BACK TO MENU" << "\n";     
                 bool change = false;
             }
             else if(position == 2 && change == true && mute == false)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "      SOUND ON" << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "--> BACK TO MENU <--" << "\n";        
                 bool change = false;
             }
             else if(position == 1 && change == true && mute == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "  --> SOUND OFF <--" << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "    BACK TO MENU" << "\n";     
                 bool change = false;
             }
             else if(position == 2 && change == true && mute == true)
             {
                 system("cls");
-                cursorTo(5, 5);
+                cursorTo(xStart, yStart);
                 cout << "      SOUND OFF" << "\n";   
-                cursorTo(5, 8);
+                cursorTo(xStart, yStart + yGap);
                 cout << "--> BACK TO MENU <--" << "\n";        
                 bool change = false;
             }
@@ -1335,6 +1359,8 @@ void delayPrint(string s)
 	}
 	return;
 }
+
+
 
 
 

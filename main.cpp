@@ -16,9 +16,11 @@ const int yGap = 3;
 int score = 0;
 int modeNum = 1;
 int attacked = 0;
+bool win = false;
 HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);//color
-//global header
+//header
 void cursorTo(int x, int y);
+
 
 //self-defined type
 struct Position
@@ -36,8 +38,9 @@ const Position Position::operator+(const Position& p2)
 	return p;
 }
 
-//another global header
+//another headers(need Position)
 void shoot(Position startPos, Position dir, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH], int range);
+bool meetWall(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 
 //Player
 class Player
@@ -165,12 +168,17 @@ void Player::playerShoot(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 void Player::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	//check if front is not wall 
-    if(map[checkPos.y][checkPos.x] != 1 && map[checkPos.y][checkPos.x] != 5)
+    if(!(meetWall(checkPos, map)))//map[checkPos.y][checkPos.x] != 1 && map[checkPos.y][checkPos.x] != 5
     {
     	//player disappear
     	map[this->pos.y][this->pos.x] = 0;
         cursorTo(this->pos.x, this->pos.y);
         printf(" ");
+        if (map[checkPos.y][checkPos.x] == -2)
+        {
+        	win = true;
+        	return;
+		}
         //check if get item
     	this->getItem(map[checkPos.y][checkPos.x]);
     	//adjust player position
@@ -214,7 +222,7 @@ void Player::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_W
     			frontOfMW.y = this->pos.y;
 		}
 		//if movable
-    	if(map[frontOfMW.y][frontOfMW.x] != 1 && map[frontOfMW.y][frontOfMW.x] != 5 && map[frontOfMW.y][frontOfMW.x] < 100)
+    	if(!(meetWall(frontOfMW, map)) && map[frontOfMW.y][frontOfMW.x] < 100)//map[frontOfMW.y][frontOfMW.x] != 1 && map[frontOfMW.y][frontOfMW.x] != 5
         {
         	//player disappear
         	map[this->pos.y][this->pos.x] = 0;
@@ -264,9 +272,7 @@ void Player::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_W
 		case 3:
 			printf("<");
 	}
-
     SetConsoleTextAttribute(hConsole, 15);
-
 	return;
 }
 Position Player::getPos()
@@ -353,6 +359,7 @@ Enemy::Enemy(const Enemy& e)
 void Enemy::enemyRespawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	this->alive = true;
+	this->HP = 1 * modeNum;
 	map[this->pos.y][this->pos.x] = enemyID;
 	cursorTo(this->pos.x, this->pos.y);
     SetConsoleTextAttribute(hConsole, 9);
@@ -523,7 +530,7 @@ void EnemyClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 			checkPos = {this->pos.x + 1, this->pos.y};
 	}
 	//if front is not wall(any kind) or start/end point, change direction
-	if (map[checkPos.y][checkPos.x] == 1 || map[checkPos.y][checkPos.x] == 5 || map[checkPos.y][checkPos.x] > 100)
+	if (meetWall(checkPos, map) || map[checkPos.y][checkPos.x] > 100 || map[checkPos.y][checkPos.x] == -2)
 	{
 		switch(this->direction)
 		{
@@ -616,7 +623,7 @@ void EnemyCounterClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 			checkPos = {this->pos.x + 1, this->pos.y};
 	}
 	//if front is not wall(any kind) or start/end point, change direction
-	if (map[checkPos.y][checkPos.x] == 1 || map[checkPos.y][checkPos.x] == 5 || map[checkPos.y][checkPos.x] > 100)
+	if (meetWall(checkPos, map) || map[checkPos.y][checkPos.x] > 100 || map[checkPos.y][checkPos.x] == -2)
 	{
 		switch(this->direction)
 		{
@@ -718,14 +725,20 @@ void EnemyTeam::allEnemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 
 
 //header 
+//other
+void delayPrint(string s);
+//before game
 void menu();
 void mode();
 void settings();
+//in game
 void printInfo();//game hint
 int direction(Position from, Position to);
 void printMap(int direction, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
+//after game
 void gameEnding();
-void delayPrint(string s);
+void winning();
+void lose();
 
 ////////////////////////////////////////////////////   
 
@@ -741,7 +754,7 @@ int main()
     int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH] = 
     {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2, 
     1, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 2, 2, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 2, 2, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
@@ -783,6 +796,7 @@ int main()
 	EnemyTeam enemyTeam;
 	enemyTeam.addCEnemy({10, 10}, 20, 1, 4, 101);
 	enemyTeam.addCCEnemy({1, 1}, 40, 1, 3, 101);
+	enemyTeam.addCEnemy({1, 3}, 10, 1, 4, 101);
 
 	//print map and info
     system("cls");
@@ -853,8 +867,15 @@ int main()
         //game over
         if (player.getPlayerHP() <= 0)
         {
+//        	lose();
         	gameRunning = false;
         	gameEnding();
+        	break;
+		}
+		else if (win)
+		{
+			winning();
+			break;
 		}
     }
 
@@ -864,8 +885,7 @@ int main()
 }
 
 //body
-
-//maybe can change into Position pos
+//other
 void cursorTo(int x, int y)
 {
     COORD c;
@@ -874,7 +894,69 @@ void cursorTo(int x, int y)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), c);
     return;
 }
+bool meetWall(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+{
+	if (map[checkPos.y][checkPos.x] == 1 || map[checkPos.y][checkPos.x] == 5)
+	{
+		return true;
+	}
+	return false;
+}
+void delayPrint(string s)
+{
+	system("cls");
+	int i = 0, timeCnt = 0;
+	while(i < s.length())
+	{
+		//if print white space(unsure)
+		if (s[i] == ' ')
+		{
+			cout << s[i];
+			i++;
+			continue;
+		}
+		//skip
+		if (kbhit())
+		{
+			int ch = getch();
+			if (ch == 32)
+			{
+				system("cls");
+				cout << s;
+				Sleep(1000);
+				break;
+			}
+		}
+		//wait
+		if (timeCnt < 10000)
+		{
+			timeCnt++;
+			continue;
+		}
+		//print
+		cout << s[i];
+		timeCnt = 0;
+		//last print
+		if (i == s.length() - 1)
+			Sleep(500);
+		i++;
+	}
+	cout << "\n" << "\n";
+	cout << "                            press Space to continue...";
+	while(true)
+	{
+		if (kbhit())
+		{
+			int ch = getch();
+			if (ch == 32)
+				break;
+		}
+	}
+	return;
+}
 
+
+//before game
 void menu()
 {
     system("cls");
@@ -959,7 +1041,6 @@ void menu()
                 cursorTo(xStart, yStart + yGap * 2);
                 cout << "      SETTINGS" << "\n";       
                 bool change = false;
-           
             }
             else if(position == 3 && change == true)
             {
@@ -972,11 +1053,8 @@ void menu()
                 cout << "  --> SETTINGS <--" << "\n";  
                 bool change = false;
             }
-
         }
-
     }
-
 }
 
 void mode()
@@ -1058,7 +1136,6 @@ void mode()
                 cursorTo(xStart, yStart + yGap * 2);   
                 cout << "    BACK TO MENU " << "\n";
                 bool change = false;
-           
             }
             else if(position == 1 && modeNum == 2 && change == true)
             {
@@ -1104,9 +1181,7 @@ void mode()
                 cout << "--> BACK TO MENU <--" << "\n";    
                 bool change = false;
             }            
-
         }
-
     }    
 }
 
@@ -1126,7 +1201,6 @@ void settings()
 
     while(true)
     {
-
         if(kbhit())
         {
             int ch = getch();
@@ -1193,6 +1267,8 @@ void settings()
     }
 }    
 
+
+//in game
 void shoot(Position startPos, Position dir, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH], int range)
 {
 	bool metItem = false;
@@ -1287,7 +1363,6 @@ void printInfo()
 
 }
 
-//no need now
 int direction(Position from, Position to)//must be at different place
 {
 	if (from.x - to.x == 0)
@@ -1363,12 +1438,20 @@ void printMap(int direction, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//clean sc
                     cout << ">";
 
                 SetConsoleTextAttribute(hConsole, 15);
-
+            }
+            else if(map[i][j] == -2) //end
+            {
+                SetConsoleTextAttribute(hConsole, 8);
+                cout << "O";
+                SetConsoleTextAttribute(hConsole, 15);
             }
         }
         cout << "\n";
     }    
 }
+
+
+//after game
 void gameEnding()
 {
 	clock_t endTime = clock();
@@ -1378,62 +1461,21 @@ void gameEnding()
     cout << "PLAYING TIME: " << endTime / CLOCKS_PER_SEC << "s" << "\n";
 	return;
 }
-void delayPrint(string s)
+void winning()
 {
-	system("cls");
-	int i = 0, timeCnt = 0;
-	while(i < s.length())
-	{
-		//if print white space(unsure)
-		if (s[i] == ' ')
-		{
-			cout << s[i];
-			i++;
-			continue;
-		}
-		//skip
-		if (kbhit())
-		{
-			int ch = getch();
-			if (ch == 32)
-			{
-				system("cls");
-				cout << s;
-				Sleep(1000);
-				break;
-			}
-		}
-		//wait
-		if (timeCnt < 10000)
-		{
-			timeCnt++;
-			continue;
-		}
-		//print
-		cout << s[i];
-		timeCnt = 0;
-		//last print
-		if (i == s.length() - 1)
-		{
-			Sleep(500);
-		}
-		i++;
-	}
-	cout << "\n" << "\n";
-	cout << "                            press Space to continue...";
-	while(true)
-	{
-		if (kbhit())
-		{
-			int ch = getch();
-			if (ch == 32)
-			{
-				break;
-			}
-		}
-	}
+	string line1 = "        Congratulation! You Won!\n        Let's see how many score you got!";
+	delayPrint(line1);
+	string line2 = "so... the result is...!";
+	delayPrint(line2);
+	gameEnding();
 	return;
 }
+void lose()
+{
+	
+	return;
+}
+
 
 
 

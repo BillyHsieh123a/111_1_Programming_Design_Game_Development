@@ -285,7 +285,6 @@ protected:
 	Position pos;
 	int speed;
 	int HP;
-	int ATK;
 	int enemyID;
 	int moveCnt;
 	int itemRecord;
@@ -293,12 +292,13 @@ protected:
 	//private functions
 	void checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
     void printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
+    bool dead(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 public:
 	//public variables
 	int direction;//enemy might don't need this
 	//constructors
 	Enemy();
-	Enemy(Position p, int s, int h, int a, int d, int i);
+	Enemy(Position p, int s, int h, int d, int i);
 	//copy constructor
 	Enemy(const Enemy& e);
 	//member functions
@@ -313,20 +313,18 @@ Enemy::Enemy()
 	pos = {0, 0};
 	speed = 0;
 	HP = 0;
-	ATK = 0;
 	direction = 4;
 	enemyID = 101;
 	moveCnt = 0;
 	itemRecord = 0;
 	alive = true;
 }
-Enemy::Enemy(Position p, int s, int h, int a, int d, int i)
+Enemy::Enemy(Position p, int s, int h, int d, int i)
 {
 
 	this->pos = p;
 	this->speed = s * modeNum;
-	this->HP = h;
-	this->ATK = a * modeNum;
+	this->HP = h * modeNum;
 	this->direction = d;
 	this->enemyID = i;
 	this->moveCnt = 0;
@@ -339,7 +337,6 @@ Enemy::Enemy(const Enemy& e)
 	this->pos = e.pos;
 	this->speed = e.speed;
 	this->HP = e.HP;
-	this->ATK = e.ATK;
 	this->direction = e.direction;
 	this->enemyID = e.enemyID;
 	this->moveCnt = e.moveCnt;
@@ -382,10 +379,6 @@ void Enemy::printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ fo
     }
     this->itemRecord = 0;
 }
-void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
-{
-	
-}
 void Enemy::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	//get front ID
@@ -395,7 +388,7 @@ void Enemy::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WI
 	{
 		if (front == -1)//front is player
 		{
-			attacked += this->ATK;
+			attacked += this->HP;
 			this->HP = 0;
 			score--;
 		}
@@ -425,6 +418,43 @@ void Enemy::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WI
 	}
 	return;
 }
+bool Enemy::dead(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+{
+	if (this->HP == 0 || map[this->pos.y][this->pos.x] == -99 || map[this->pos.y][this->pos.x] == -1)
+	{
+		//if bumped by player
+		if (map[this->pos.y][this->pos.x] == -1 && this->alive)
+		{
+			attacked = this->HP;
+			score--;
+		}
+		else if (this->itemRecord != 0 && map[this->pos.y][this->pos.x] == -99)
+		{
+			printBackRecord(map);
+		}
+		//ex bump into player
+		else
+		{
+			if (this->itemRecord != 0)
+			{
+				printBackRecord(map);
+			}
+			else
+			{
+				map[this->pos.y][this->pos.x] = 0;
+				cursorTo(this->pos.x, this->pos.y);
+				cout << " ";
+			}
+		}
+		this->alive = false;
+		return true;
+	}
+	return false;
+}
+void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
+{
+	
+}
 Position Enemy::getEnemyPos()
 {
 	return this->pos;
@@ -434,6 +464,7 @@ bool Enemy::enemyStatus()
 	return this->alive;
 }
 
+
 //Clockwise
 class EnemyClockwise : public Enemy
 {
@@ -442,7 +473,7 @@ private:
 public:
 	//constructors
 	EnemyClockwise();
-	EnemyClockwise(Position p, int s, int h, int a, int d, int i);
+	EnemyClockwise(Position p, int s, int h, int d, int i);
 	//copy constructor
 	EnemyClockwise(const EnemyClockwise& e);
 	//member function
@@ -453,7 +484,7 @@ EnemyClockwise::EnemyClockwise()
 {
 	
 }
-EnemyClockwise::EnemyClockwise(Position p, int s, int h, int a, int d, int i) : Enemy(p, s, h, a, d, i)
+EnemyClockwise::EnemyClockwise(Position p, int s, int h, int d, int i) : Enemy(p, s, h, d, i)
 {
 	
 }
@@ -466,28 +497,8 @@ EnemyClockwise::EnemyClockwise(const EnemyClockwise& e) : Enemy(e)
 void EnemyClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	//if enemy has died
-	if (this->HP == 0 || map[this->pos.y][this->pos.x] == -99 || map[this->pos.y][this->pos.x] == -1)
+	if (this->dead(map))
 	{
-		//if bumped by player
-		if (map[this->pos.y][this->pos.x] == -1 && this->HP > 0)
-		{
-			attacked = this->ATK;
-			score--;
-			this->HP = 0;
-		}
-		else if (this->itemRecord != 0 && map[this->pos.y][this->pos.x] == -99)
-		{
-			printBackRecord(map);
-            this->HP = 0;
-		}
-		else
-		{
-			this->HP = 0;
-			map[this->pos.y][this->pos.x] = 0;
-			cursorTo(this->pos.x, this->pos.y);
-			cout << " ";
-		}
-		this->alive = false;
 		return;
 	}
 	//enemy move speed
@@ -555,7 +566,7 @@ private:
 public:
 	//constructors
 	EnemyCounterClockwise();
-	EnemyCounterClockwise(Position p, int s, int h, int a, int d, int i);
+	EnemyCounterClockwise(Position p, int s, int h, int d, int i);
 	//copy constructor
 	EnemyCounterClockwise(const EnemyCounterClockwise& e);
 	//member function
@@ -566,7 +577,7 @@ EnemyCounterClockwise::EnemyCounterClockwise()
 {
 	
 }
-EnemyCounterClockwise::EnemyCounterClockwise(Position p, int s, int h, int a, int d, int i) : Enemy(p, s, h, a, d, i)
+EnemyCounterClockwise::EnemyCounterClockwise(Position p, int s, int h, int d, int i) : Enemy(p, s, h, d, i)
 {
 	
 }
@@ -579,28 +590,8 @@ EnemyCounterClockwise::EnemyCounterClockwise(const EnemyCounterClockwise& e) : E
 void EnemyCounterClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	//if enemy has died
-	if (this->HP == 0 || map[this->pos.y][this->pos.x] == -99 || map[this->pos.y][this->pos.x] == -1)
+	if (this->dead(map))
 	{
-		//if bumped by player
-		if (map[this->pos.y][this->pos.x] == -1 && this->HP > 0)
-		{
-			attacked = this->ATK;
-			score--;
-			this->HP = 0;
-		}
-		else if (this->itemRecord != 0 && map[this->pos.y][this->pos.x] == -99)
-		{
-			printBackRecord(map);
-            this->HP = 0;
-		}
-		else
-		{
-			this->HP = 0;
-			map[this->pos.y][this->pos.x] = 0;
-			cursorTo(this->pos.x, this->pos.y);
-			cout << " ";
-		}
-		this->alive = false;
 		return;
 	}
 	//enemy move speed
@@ -675,8 +666,8 @@ public:
 	//destructors
 	~EnemyTeam();
 	//member functions
-	void addCEnemy(Position p, int s, int h, int a, int d, int i);
-	void addCCEnemy(Position p, int s, int h, int a, int d, int i);
+	void addCEnemy(Position p, int s, int h, int d, int i);
+	void addCCEnemy(Position p, int s, int h, int d, int i);
 	void allEnemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 };
 EnemyTeam::EnemyTeam()
@@ -692,21 +683,21 @@ EnemyTeam::~EnemyTeam()
 	delete [] this->enemyPtr;
 	return;
 }
-void EnemyTeam::addCEnemy(Position p, int s, int h, int a, int d, int i)
+void EnemyTeam::addCEnemy(Position p, int s, int h, int d, int i)
 {
 	if (this->cnt < this->capacity)
 	{
-		this->enemyPtr[cnt] = new EnemyClockwise(p, s, h, a, d, i);
+		this->enemyPtr[cnt] = new EnemyClockwise(p, s, h, d, i);
 		cnt++;
 		return;
 	}
 	return;
 }
-void EnemyTeam::addCCEnemy(Position p, int s, int h, int a, int d, int i)
+void EnemyTeam::addCCEnemy(Position p, int s, int h, int d, int i)
 {
 	if (this->cnt < this->capacity)
 	{
-		this->enemyPtr[cnt] = new EnemyCounterClockwise(p, s, h, a, d, i);
+		this->enemyPtr[cnt] = new EnemyCounterClockwise(p, s, h, d, i);
 		cnt++;
 		return;
 	}
@@ -748,13 +739,13 @@ int main()
     int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH] = 
     {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 2, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
-    1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 2, 2, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 2, 2, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 2, 2, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 2, 2, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
+    1, 0, 0, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 
@@ -788,8 +779,8 @@ int main()
 	map[player.getPos().y][player.getPos().x] = -1;
     //enemy(use array)
 	EnemyTeam enemyTeam;
-	enemyTeam.addCEnemy({10, 10}, 20, 3, 1, 4, 101);
-	enemyTeam.addCCEnemy({1, 1}, 40, 3, 1, 3, 101);
+	enemyTeam.addCEnemy({10, 10}, 20, 1, 4, 101);
+	enemyTeam.addCCEnemy({1, 1}, 40, 1, 3, 101);
 
 	//print map and info
     system("cls");

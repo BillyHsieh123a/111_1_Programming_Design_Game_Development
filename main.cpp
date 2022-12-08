@@ -89,6 +89,13 @@ Player::Player(const Player& player)
 //member function
 void Player::printStatus()
 {
+	//clear
+    cursorTo(0, MAP_SIZE_HEIGHT);
+    cout << "                                        ";
+    cursorTo(0, MAP_SIZE_HEIGHT + 1);
+    cout << "                                        ";
+    cursorTo(0, MAP_SIZE_HEIGHT + 3);
+    cout << "                                        ";
     cursorTo(0, MAP_SIZE_HEIGHT);
     //health
     SetConsoleTextAttribute(hConsole, 10);
@@ -304,7 +311,6 @@ public:
 	//member functions
 	void enemyRespawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 	virtual void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]) = 0;//put this into the main while loop, if (e1.getEnemyHP != 0)
-	Position getEnemyPos();
 	bool enemyStatus();
 };
 //constructor
@@ -454,10 +460,6 @@ bool Enemy::dead(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
 {
 	
-}
-Position Enemy::getEnemyPos()
-{
-	return this->pos;
 }
 bool Enemy::enemyStatus()
 {

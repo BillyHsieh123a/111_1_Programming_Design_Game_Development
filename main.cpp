@@ -284,11 +284,12 @@ protected:
 	static const int moveThershold = 40000;
 	Position pos;
 	int speed;
-	int HP;//alive true or false
+	int HP;
 	int ATK;
 	int enemyID;
 	int moveCnt;
 	int itemRecord;
+	bool alive;
 	//private functions
 	void checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
     void printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
@@ -301,10 +302,10 @@ public:
 	//copy constructor
 	Enemy(const Enemy& e);
 	//member functions
-	void enemySpawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
+	void enemyRespawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 	virtual void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]) = 0;//put this into the main while loop, if (e1.getEnemyHP != 0)
 	Position getEnemyPos();
-	int getEnemyHP();
+	bool enemyStatus();
 };
 //constructor
 Enemy::Enemy()
@@ -317,6 +318,7 @@ Enemy::Enemy()
 	enemyID = 101;
 	moveCnt = 0;
 	itemRecord = 0;
+	alive = true;
 }
 Enemy::Enemy(Position p, int s, int h, int a, int d, int i)
 {
@@ -329,6 +331,7 @@ Enemy::Enemy(Position p, int s, int h, int a, int d, int i)
 	this->enemyID = i;
 	this->moveCnt = 0;
 	this->itemRecord = 0;
+	this->alive = true;
 }
 //copy constrctor
 Enemy::Enemy(const Enemy& e)
@@ -341,10 +344,12 @@ Enemy::Enemy(const Enemy& e)
 	this->enemyID = e.enemyID;
 	this->moveCnt = e.moveCnt;
 	this->itemRecord = e.itemRecord;
+	this->alive = e.alive;
 }
 //member function
-void Enemy::enemySpawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+void Enemy::enemyRespawn(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
+	this->alive = true;
 	map[this->pos.y][this->pos.x] = enemyID;
 	cursorTo(this->pos.x, this->pos.y);
     SetConsoleTextAttribute(hConsole, 9);
@@ -424,12 +429,12 @@ Position Enemy::getEnemyPos()
 {
 	return this->pos;
 }
-int Enemy::getEnemyHP()
+bool Enemy::enemyStatus()
 {
-	return this->HP;
+	return this->alive;
 }
 
-//right  Clockwise
+//Clockwise
 class EnemyClockwise : public Enemy
 {
 private:
@@ -482,6 +487,7 @@ void EnemyClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 			cursorTo(this->pos.x, this->pos.y);
 			cout << " ";
 		}
+		this->alive = false;
 		return;
 	}
 	//enemy move speed
@@ -594,6 +600,7 @@ void EnemyCounterClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 			cursorTo(this->pos.x, this->pos.y);
 			cout << " ";
 		}
+		this->alive = false;
 		return;
 	}
 	//enemy move speed
@@ -709,7 +716,7 @@ void EnemyTeam::allEnemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	for (int i = 0; i < cnt; i++)
 	{
-		if (enemyPtr[i]->getEnemyHP() != 0)
+		if (enemyPtr[i]->enemyStatus())
 		{
 			enemyPtr[i]->enemyMove(map);
 		}

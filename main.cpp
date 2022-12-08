@@ -430,35 +430,35 @@ int Enemy::getEnemyHP()
 }
 
 //right  Clockwise
-class EnemyWiseClock : public Enemy
+class EnemyClockwise : public Enemy
 {
 private:
 	
 public:
 	//constructors
-	EnemyWiseClock();
-	EnemyWiseClock(Position p, int s, int h, int a, int d, int i);
+	EnemyClockwise();
+	EnemyClockwise(Position p, int s, int h, int a, int d, int i);
 	//copy constructor
-	EnemyWiseClock(const EnemyWiseClock& e);
+	EnemyClockwise(const EnemyClockwise& e);
 	//member function
 	void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 };
 //constructor
-EnemyWiseClock::EnemyWiseClock()
+EnemyClockwise::EnemyClockwise()
 {
 	
 }
-EnemyWiseClock::EnemyWiseClock(Position p, int s, int h, int a, int d, int i) : Enemy(p, s, h, a, d, i)
+EnemyClockwise::EnemyClockwise(Position p, int s, int h, int a, int d, int i) : Enemy(p, s, h, a, d, i)
 {
 	
 }
 //copy constructor
-EnemyWiseClock::EnemyWiseClock(const EnemyWiseClock& e) : Enemy(e)
+EnemyClockwise::EnemyClockwise(const EnemyClockwise& e) : Enemy(e)
 {
 	
 }
 //memner function
-void EnemyWiseClock::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+void EnemyClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	//if enemy has died
 	if (this->HP == 0 || map[this->pos.y][this->pos.x] == -99 || map[this->pos.y][this->pos.x] == -1)
@@ -542,35 +542,35 @@ void EnemyWiseClock::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 }
 
 //counter
-class EnemyCounterClockWise : public Enemy
+class EnemyCounterClockwise : public Enemy
 {
 private:
 	
 public:
 	//constructors
-	EnemyCounterClockWise();
-	EnemyCounterClockWise(Position p, int s, int h, int a, int d, int i);
+	EnemyCounterClockwise();
+	EnemyCounterClockwise(Position p, int s, int h, int a, int d, int i);
 	//copy constructor
-	EnemyCounterClockWise(const EnemyCounterClockWise& e);
+	EnemyCounterClockwise(const EnemyCounterClockwise& e);
 	//member function
 	void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 };
 //constructor
-EnemyCounterClockWise::EnemyCounterClockWise()
+EnemyCounterClockwise::EnemyCounterClockwise()
 {
 	
 }
-EnemyCounterClockWise::EnemyCounterClockWise(Position p, int s, int h, int a, int d, int i) : Enemy(p, s, h, a, d, i)
+EnemyCounterClockwise::EnemyCounterClockwise(Position p, int s, int h, int a, int d, int i) : Enemy(p, s, h, a, d, i)
 {
 	
 }
 //copy constructor
-EnemyCounterClockWise::EnemyCounterClockWise(const EnemyCounterClockWise& e) : Enemy(e)
+EnemyCounterClockwise::EnemyCounterClockwise(const EnemyCounterClockwise& e) : Enemy(e)
 {
 	
 }
 //memner function
-void EnemyCounterClockWise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+void EnemyCounterClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	//if enemy has died
 	if (this->HP == 0 || map[this->pos.y][this->pos.x] == -99 || map[this->pos.y][this->pos.x] == -1)
@@ -653,6 +653,58 @@ void EnemyCounterClockWise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	return;
 }
 
+//enemys
+class EnemyTeam
+{
+private:
+	int capacity;
+	int cnt;
+	Enemy** enemyPtr;
+public:
+	//constructors
+	EnemyTeam();
+	//copy constructor
+//	EnemyTeam(const EnemyTeam& team);//might not need here
+	//destructors
+	~EnemyTeam();
+	//member functions
+	void addCEnemy(Position p, int s, int h, int a, int d, int i);
+	void addCCEnemy(Position p, int s, int h, int a, int d, int i);
+};
+EnemyTeam::EnemyTeam()
+{
+	this->cnt = 0;
+	this->capacity = 20000;
+	this->enemyPtr = new Enemy*[this->capacity];
+}
+EnemyTeam::~EnemyTeam()
+{
+	for(int i = 0; i < this->cnt; i++)
+		delete this->enemyPtr[i];
+	delete [] this->enemyPtr;
+	return;
+}
+void EnemyTeam::addCEnemy(Position p, int s, int h, int a, int d, int i)
+{
+	if (this->cnt < this->capacity)
+	{
+		this->enemyPtr[cnt] = new EnemyClockwise(p, s, h, a, d, i);
+		cnt++;
+		return;
+	}
+	return;
+}
+void EnemyTeam::addCCEnemy(Position p, int s, int h, int a, int d, int i)
+{
+	if (this->cnt < this->capacity)
+	{
+		this->enemyPtr[cnt] = new EnemyCounterClockwise(p, s, h, a, d, i);
+		cnt++;
+		return;
+	}
+	return;
+}
+
 
 //header 
 void menu();
@@ -706,11 +758,11 @@ int main()
 	//character settings 
 	//player
 	Position spawnPos = {1, 18};
-	Player player(spawnPos, 5, 0, 1);
+	Player player(spawnPos, 5, 6, 1);
 	map[player.getPos().y][player.getPos().x] = -1;
 	//enemy(use array)
-    EnemyWiseClock e({10, 10}, 20, 3, 1, 4, 101);
-	EnemyCounterClockWise e2({1, 1}, 40, 3, 1, 3, 101);
+	EnemyClockwise e({10, 10}, 20, 3, 1, 4, 101);
+	EnemyCounterClockwise e2({1, 1}, 40, 3, 1, 3, 101);
 	
 	
 	//game status
@@ -719,7 +771,7 @@ int main()
 ////////GAME START//////////////////////////////////
 
     // open menu
-    menu();
+   menu();
 
     //enemy(use array)
 

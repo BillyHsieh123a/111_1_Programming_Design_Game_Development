@@ -937,7 +937,7 @@ int main()
         {
         	cursorTo(player.getPos().x, player.getPos().y);
         	Sleep(1000);
-        	cout << "/";
+        	cout << "*";
         	cursorTo(player.getPos().x, player.getPos().y);
         	Sleep(1000);
         	cout << ".";

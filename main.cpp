@@ -670,6 +670,7 @@ public:
 	//member functions
 	void addCEnemy(Position p, int s, int h, int a, int d, int i);
 	void addCCEnemy(Position p, int s, int h, int a, int d, int i);
+	void allEnemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 };
 EnemyTeam::EnemyTeam()
 {
@@ -703,6 +704,16 @@ void EnemyTeam::addCCEnemy(Position p, int s, int h, int a, int d, int i)
 		return;
 	}
 	return;
+}
+void EnemyTeam::allEnemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+{
+	for (int i = 0; i < cnt; i++)
+	{
+		if (enemyPtr[i]->getEnemyHP() != 0)
+		{
+			enemyPtr[i]->enemyMove(map);
+		}
+	}
 }
 
 
@@ -761,8 +772,9 @@ int main()
 	Player player(spawnPos, 5, 6, 1);
 	map[player.getPos().y][player.getPos().x] = -1;
 	//enemy(use array)
-	EnemyClockwise e({10, 10}, 20, 3, 1, 4, 101);
-	EnemyCounterClockwise e2({1, 1}, 40, 3, 1, 3, 101);
+	EnemyTeam enemyTeam;
+	enemyTeam.addCEnemy({10, 10}, 20, 3, 1, 4, 101);
+	enemyTeam.addCCEnemy({1, 1}, 40, 3, 1, 3, 101);
 	
 	
 	//game status
@@ -771,7 +783,7 @@ int main()
 ////////GAME START//////////////////////////////////
 
     // open menu
-   menu();
+    menu();
 
     //enemy(use array)
 
@@ -780,7 +792,12 @@ int main()
     system("cls");
     printMap(player.direction, map);
     //enemySpawn
-    e.enemySpawn(map);
+//    for (int i = 0; i < enemyTeam.getEnemyCnt(); i++)
+//    {
+//    	enemyTeam[i]->
+//	}
+//    e.enemySpawn(map);
+	//printInfo
     player.printStatus(); 
     printInfo();
     cursorTo(player.getPos().x, player.getPos().y);
@@ -794,14 +811,15 @@ int main()
     		attacked = 0;
     		player.printStatus();
 		}
-		if (e.getEnemyHP() != 0)
-		{
-			e.enemyMove(map);
-		}
-		if (e2.getEnemyHP() != 0)
-		{
-			e2.enemyMove(map);
-		}
+		enemyTeam.allEnemyMove(map);
+//		if (e.getEnemyHP() != 0)
+//		{
+//			e.enemyMove(map);
+//		}
+//		if (e2.getEnemyHP() != 0)
+//		{
+//			e2.enemyMove(map);
+//		}
         if(kbhit())
         {
             int ch = getch();

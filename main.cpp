@@ -281,6 +281,7 @@ int Player::getPlayerHP()
 class Enemy
 {
 protected:
+	static const int moveThershold = 40000;
 	Position pos;
 	int speed;
 	int HP;//alive true or false
@@ -521,7 +522,7 @@ void EnemyWiseClock::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 		}
 	}
 	//if movable
-	if (this->moveCnt >= 10)
+	if (this->moveCnt >= moveThershold)
 	{
 		this->moveCnt = 0;
 		if (this->itemRecord != 0)
@@ -633,7 +634,7 @@ void EnemyCounterClockWise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 		}
 	}
 	//if movable
-	if (this->moveCnt >= 40000)
+	if (this->moveCnt >= moveThershold)
 	{
 		this->moveCnt = 0;
 		if (this->itemRecord != 0)

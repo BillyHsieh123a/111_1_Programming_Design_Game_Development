@@ -4,6 +4,7 @@
 #include <ctime>
 #include <windows.h>
 #include <string>
+#include <cstdlib>
 //#include "sound.h"
 using namespace std;
 //constants
@@ -306,6 +307,7 @@ protected:
 	void checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
     void printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
     bool dead(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
+    Position decideCheckPos();
 public:
 	//public variables
 	int direction;//enemy might don't need this
@@ -394,6 +396,18 @@ void Enemy::printBackRecord(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ fo
 }
 void Enemy::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
+	//before move
+	if (this->itemRecord != 0)
+	{
+		printBackRecord(map);
+	}
+	else
+	{
+		//enemy disappear
+		map[this->pos.y][this->pos.x] = 0;
+		cursorTo(this->pos.x, this->pos.y);
+		cout << " ";
+	}
 	//get front ID
 	int front = map[checkPos.y][checkPos.x];
 	//then...
@@ -464,6 +478,25 @@ bool Enemy::dead(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	}
 	return false;
 }
+Position Enemy::decideCheckPos()
+{
+	Position checkPos = {0};
+	switch(this->direction)
+	{
+		case 1://up
+			checkPos = {this->pos.x, this->pos.y - 1};
+			break;
+		case 2://down
+			checkPos = {this->pos.x, this->pos.y + 1};
+			break;
+		case 3://left
+			checkPos = {this->pos.x - 1, this->pos.y};
+			break;
+		case 4://right
+			checkPos = {this->pos.x + 1, this->pos.y};
+	}
+	return checkPos;
+}
 void Enemy::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//differ for every enemy
 {
 	
@@ -502,7 +535,7 @@ EnemyClockwise::EnemyClockwise(const EnemyClockwise& e) : Enemy(e)
 {
 	
 }
-//memner function
+//member function
 void EnemyClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	//if enemy has died
@@ -513,22 +546,7 @@ void EnemyClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	//enemy move speed
 	this->moveCnt += this->speed;
 	//deciding move direction
-	//clockwise
-	Position checkPos = this->pos;
-	switch(this->direction)
-	{
-		case 1://up
-			checkPos = {this->pos.x, this->pos.y - 1};
-			break;
-		case 2://down
-			checkPos = {this->pos.x, this->pos.y + 1};
-			break;
-		case 3://left
-			checkPos = {this->pos.x - 1, this->pos.y};
-			break;
-		case 4://right
-			checkPos = {this->pos.x + 1, this->pos.y};
-	}
+	Position checkPos = decideCheckPos();
 	//if front is not wall(any kind) or start/end point, change direction
 	if (meetWall(checkPos, map) || map[checkPos.y][checkPos.x] > 100 || map[checkPos.y][checkPos.x] == -2)
 	{
@@ -551,17 +569,6 @@ void EnemyClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	if (this->moveCnt >= moveThershold)
 	{
 		this->moveCnt = 0;
-		if (this->itemRecord != 0)
-		{
-			printBackRecord(map);
-		}
-		else
-		{
-			//enemy disappear
-			map[this->pos.y][this->pos.x] = 0;
-			cursorTo(this->pos.x, this->pos.y);
-			cout << " ";
-		}
 		checkAndMove(checkPos, map);
 	}	
 	return;
@@ -595,7 +602,7 @@ EnemyCounterClockwise::EnemyCounterClockwise(const EnemyCounterClockwise& e) : E
 {
 	
 }
-//memner function
+//member function
 void EnemyCounterClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
 	//if enemy has died
@@ -606,22 +613,7 @@ void EnemyCounterClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	//enemy move speed
 	this->moveCnt += this->speed;
 	//deciding move direction
-	//clockwise
-	Position checkPos = this->pos;
-	switch(this->direction)
-	{
-		case 1://up
-			checkPos = {this->pos.x, this->pos.y - 1};
-			break;
-		case 2://down
-			checkPos = {this->pos.x, this->pos.y + 1};
-			break;
-		case 3://left
-			checkPos = {this->pos.x - 1, this->pos.y};
-			break;
-		case 4://right
-			checkPos = {this->pos.x + 1, this->pos.y};
-	}
+	Position checkPos = decideCheckPos();
 	//if front is not wall(any kind) or start/end point, change direction
 	if (meetWall(checkPos, map) || map[checkPos.y][checkPos.x] > 100 || map[checkPos.y][checkPos.x] == -2)
 	{
@@ -644,21 +636,95 @@ void EnemyCounterClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	if (this->moveCnt >= moveThershold)
 	{
 		this->moveCnt = 0;
-		if (this->itemRecord != 0)
-		{
-			printBackRecord(map);
-		}
-		else
-		{
-			//enemy disappear
-			map[this->pos.y][this->pos.x] = 0;
-			cursorTo(this->pos.x, this->pos.y);
-			cout << " ";
-		}
 		checkAndMove(checkPos, map);
 	}	
 	return;
 }
+
+//random
+class EnemyRandom : public Enemy
+{
+private:
+	int done = 0;
+public:
+	//constructors
+	EnemyRandom();
+	EnemyRandom(Position p, int s, int h, int d, int i);
+	//copy constructor
+	EnemyRandom(const EnemyRandom& e);
+	//member function
+	void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
+};
+//constructor
+EnemyRandom::EnemyRandom()
+{
+	
+}
+EnemyRandom::EnemyRandom(Position p, int s, int h, int d, int i) : Enemy(p, s, h, d, i)
+{
+	
+}
+//copy constructor
+EnemyRandom::EnemyRandom(const EnemyRandom& e) : Enemy(e)
+{
+	
+}
+//member function
+void EnemyRandom::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
+{
+	//if enemy has died
+	if (this->dead(map))
+	{
+		return;
+	}
+	//enemy move speed
+	this->moveCnt += this->speed;
+	//deciding move direction
+	Position checkPos = decideCheckPos();
+	//if front is not wall(any kind) or start/end point, change direction
+	if (meetWall(checkPos, map) || map[checkPos.y][checkPos.x] > 100 || map[checkPos.y][checkPos.x] == -2)
+	{
+		switch(this->direction)
+		{
+			case 1:
+				this->direction = 3;
+				break;
+			case 2:
+				this->direction = 4;
+				break;
+			case 3:
+				this->direction = 2;
+				break;
+			case 4:
+				this->direction = 1;
+		}
+	}
+	else if (moveCnt > 0 && this->done == 0)//can be better
+	{
+		int rn = 0;
+		srand(time(nullptr));
+		while (this->done == 0)
+		{
+			int temp = rand();
+			if (temp <= 29999)
+			{
+				rn = (temp * 10561 + 2153) % 4;
+				this->done = 1;
+			}
+		}
+		this->direction = rn + 1;
+	}
+	//if movable
+	if (this->moveCnt >= moveThershold)
+	{
+		this->moveCnt = 0;
+		checkAndMove(checkPos, map);
+		this->done = 0;
+	}	
+	return;
+}
+
+
 
 //enemys
 class EnemyTeam
@@ -677,12 +743,13 @@ public:
 	//member functions
 	void addCEnemy(Position p, int s, int h, int d, int i);
 	void addCCEnemy(Position p, int s, int h, int d, int i);
+	void addREnemy(Position p, int s, int h, int d, int i);
 	void allEnemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 };
 EnemyTeam::EnemyTeam()
 {
 	this->cnt = 0;
-	this->capacity = 20000;
+	this->capacity = 1000;
 	this->enemyPtr = new Enemy*[this->capacity];
 }
 EnemyTeam::~EnemyTeam()
@@ -707,6 +774,16 @@ void EnemyTeam::addCCEnemy(Position p, int s, int h, int d, int i)
 	if (this->cnt < this->capacity)
 	{
 		this->enemyPtr[cnt] = new EnemyCounterClockwise(p, s, h, d, i);
+		cnt++;
+		return;
+	}
+	return;
+}
+void EnemyTeam::addREnemy(Position p, int s, int h, int d, int i)
+{
+	if (this->cnt < this->capacity)
+	{
+		this->enemyPtr[cnt] = new EnemyRandom(p, s, h, d, i);
 		cnt++;
 		return;
 	}
@@ -797,6 +874,7 @@ int main()
 	enemyTeam.addCEnemy({10, 10}, 20, 3, 4, 101);
 	enemyTeam.addCCEnemy({1, 1}, 40, 3, 3, 101);
 	enemyTeam.addCEnemy({1, 3}, 10, 3, 4, 101);
+	enemyTeam.addREnemy({8, 14}, 5, 3, 4, 101);
 
 	//print map and info
     system("cls");
@@ -937,7 +1015,7 @@ void delayPrint(string s)
 			}
 		}
 		//wait
-		if (timeCnt < 10000)
+		if (timeCnt < 5000)
 		{
 			timeCnt++;
 			continue;
@@ -974,22 +1052,22 @@ void menu()
 
 	cursorTo(xStart - 13, yStart);
 	cout << " _   _ _____ _____  _   _ ________  ___  ___  ______ _____ \n";
-	Sleep(1000);
+	Sleep(500);
 	cursorTo(xStart - 13, yStart + 1);
 	cout << "| \\ | |_   _|  __ \\| | | |_   _|  \\/  | / _ \\ | ___ \\  ___| \n";
-	Sleep(1000);
+	Sleep(500);
 	cursorTo(xStart - 13, yStart + 2);
 	cout << "|  \\| | | | | |  \\/| |_| | | | | .  . |/ /_\\ \\| |_/ / |__ \n";
-	Sleep(1000);
+	Sleep(500);
 	cursorTo(xStart - 13, yStart + 3);
 	cout << "| . ` | | | | | __ |  _  | | | | |\\/| ||  _  ||    /|  __| \n";
-	Sleep(1000);
+	Sleep(500);
 	cursorTo(xStart - 13, yStart + 4);
 	cout << "| |\\  |_| |_| |_\\ \\| | | | | | | |  | || | | || |\\ \\| |___ \n";
-	Sleep(1000);
+	Sleep(500);
 	cursorTo(xStart - 13, yStart + 5);
 	cout << "\\_| \\_/\\___/ \\____/\\_| |_/ \\_/ \\_|  |_/\\_| |_/\\_| \\_\\____/ \n";
-	Sleep(5000);
+	Sleep(3000);
 
 	system("cls");
                                                                                                        

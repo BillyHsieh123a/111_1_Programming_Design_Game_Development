@@ -765,17 +765,6 @@ int main()
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     };    
-
-	//character settings 
-	//player
-	Position spawnPos = {1, 18};
-	Player player(spawnPos, 5, 6, 1);
-	map[player.getPos().y][player.getPos().x] = -1;
-	//enemy(use array)
-	EnemyTeam enemyTeam;
-	enemyTeam.addCEnemy({10, 10}, 20, 3, 1, 4, 101);
-	enemyTeam.addCCEnemy({1, 1}, 40, 3, 1, 3, 101);
-	
 	
 	//game status
     bool gameRunning = true;
@@ -785,18 +774,19 @@ int main()
     // open menu
     menu();
 
+	//character settings 
+	//player
+	Position spawnPos = {1, 18};
+	Player player(spawnPos, 5, 6, 1);
+	map[player.getPos().y][player.getPos().x] = -1;
     //enemy(use array)
-
+	EnemyTeam enemyTeam;
+	enemyTeam.addCEnemy({10, 10}, 20, 3, 1, 4, 101);
+	enemyTeam.addCCEnemy({1, 1}, 40, 3, 1, 3, 101);
 
 	//print map and info
     system("cls");
     printMap(player.direction, map);
-    //enemySpawn
-//    for (int i = 0; i < enemyTeam.getEnemyCnt(); i++)
-//    {
-//    	enemyTeam[i]->
-//	}
-//    e.enemySpawn(map);
 	//printInfo
     player.printStatus(); 
     printInfo();
@@ -805,66 +795,62 @@ int main()
 	//game resume
     while(gameRunning)
     {  
+    	//player HP cost
     	if (attacked > 0)
     	{
     		player.HPcost(attacked);
     		attacked = 0;
     		player.printStatus();
 		}
+		//enemy move
 		enemyTeam.allEnemyMove(map);
-//		if (e.getEnemyHP() != 0)
-//		{
-//			e.enemyMove(map);
-//		}
-//		if (e2.getEnemyHP() != 0)
-//		{
-//			e2.enemyMove(map);
-//		}
+		//player move
         if(kbhit())
         {
             int ch = getch();
-
+			//up
             if(ch == 'w')
             {
             	player.direction = 1;
             	Position checkPos = {player.getPos().x, player.getPos().y - 1};
             	player.checkAndMove(checkPos, map);
             }
-
+			//left
             if(ch == 'a')
             {
                 player.direction = 3;
             	Position checkPos = {player.getPos().x - 1, player.getPos().y};
             	player.checkAndMove(checkPos, map); 
             }
-
+			//down
             if(ch == 's')
             {
                 player.direction = 2;
             	Position checkPos = {player.getPos().x, player.getPos().y + 1};
             	player.checkAndMove(checkPos, map);
             }
-
+			//right
             if(ch == 'd')
             {
                 player.direction = 4;
             	Position checkPos = {player.getPos().x + 1, player.getPos().y};
             	player.checkAndMove(checkPos, map);      
             }                
-
+			//shoot
             if(ch == 'e')
             {
                 player.playerShoot(map); 
                 player.printStatus();
                 cursorTo(player.getPos().x, player.getPos().y);
             }
-        
+        	//quit
             if(ch == 'q')
             {
             	gameRunning = false;
                 gameEnding();
             }
         }
+        //game over
         if (player.getPlayerHP() <= 0)
         {
         	gameRunning = false;

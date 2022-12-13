@@ -645,7 +645,6 @@ void EnemyCounterClockwise::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 class EnemyRandom : public Enemy
 {
 private:
-	int done;
 	int step;
 public:
 	//constructors
@@ -657,13 +656,12 @@ public:
 	void enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 };
 //constructor
-EnemyRandom::EnemyRandom() : done(0), step(0)
+EnemyRandom::EnemyRandom() : step(0)
 {
 	
 }
 EnemyRandom::EnemyRandom(Position p, int s, int h, int d, int i) : Enemy(p, s, h, d, i)
 {
-	done = 0;
 	step = 0;
 }
 //copy constructor
@@ -686,19 +684,18 @@ void EnemyRandom::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	//change direction
 	if (step > 1 || meetWall(checkPos, map) || map[checkPos.y][checkPos.x] == -2 || map[checkPos.y][checkPos.x] > 100)//should be better
 	{
+		int done = 0, rn = 0;
 		step = 0;
-		int rn = 0;
 		srand(time(nullptr));
-		while (this->done == 0)
+		while (done == 0)
 		{
 			int temp = rand();
 			if (temp <= 29999)
 			{
 				rn = temp % 4;
-				this->done = 1;
+				done = 1;
 			}
 		}
-		this->done = 0;
 		this->direction = rn + 1;
 	}
 	//if movable
@@ -1353,8 +1350,6 @@ void shoot(Position startPos, Position dir, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WI
     {
     	Position temp = {0};
     	temp = startPos + dir;
-//    	temp.x = startPos.x + dir.x;
-//    	temp.y = startPos.y + dir.y;
         //if front is blank
         if(map[temp.y][temp.x] == 0)
         {

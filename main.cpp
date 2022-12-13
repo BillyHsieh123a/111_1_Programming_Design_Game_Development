@@ -5,7 +5,6 @@
 #include <windows.h>
 #include <string>
 #include <cstdlib>
-//testing
 //#include "sound.h"
 using namespace std;
 //constants
@@ -1566,14 +1565,10 @@ void winning()
 }
 void losing()
 {
-	string line1 = "     Oh... what a little poor guy...\n     How did you get here?\n     Didn't anyone told you that here is the \"NIGHTMARE\"?";
+	string line1 = "     So... You lose\n     But...you would like to try again, wouldn't you?\n";
 	delayPrint(line1);
-	string line2 = "...\nActually...\nI don't really care about how you get here";
+	string line2 = "......\n (there is no result board since you have losen.)\n     (but you can try again.)";
 	delayPrint(line2);
-	string line3 = "Get lost! \n              You loser";
-	delayPrint(line3);
-	string line4 = "......\n (there is no result board since you have losen.)";
-	delayPrint(line4);
 	return;
 }
 

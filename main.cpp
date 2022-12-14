@@ -888,6 +888,23 @@ int main()
 	enemyTeam.addCCEnemy({6, 1}, 20, 2, 3, 92);
 	enemyTeam.addCCEnemy({15, 20}, 20, 2, 3, 92);
 	enemyTeam.addCCEnemy({14, 10}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({26, 13}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({26, 15}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({30, 9}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({32, 9}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({34, 9}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({36, 9}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({38, 9}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({44, 6}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({44, 10}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({44, 18}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({44, 22}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({48, 6}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({48, 10}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({48, 18}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({48, 22}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({50, 13}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({53, 13}, 20, 2, 3, 92);
 
 	enemyTeam.addREnemy({4, 16}, 20, 2, 4, 93);
 	enemyTeam.addREnemy({5, 19}, 20, 2, 4, 93);

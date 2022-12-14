@@ -71,7 +71,7 @@ public:
 Player::Player()
 {
 	pos = {5, 5};
-	healthPoint = 10;
+	healthPoint = 3;
 	bulletNum = 0;
 	direction = 1;
 }
@@ -850,7 +850,7 @@ int main()
 	//character settings 
 	//player
 	Position spawnPos = {1, 1};
-	Player player(spawnPos, 5, 6, 1);
+	Player player(spawnPos, (10 / modeNum), 6, 1);
 	map[player.getPos().y][player.getPos().x] = -1;
     //enemy(use array)
 	EnemyTeam enemyTeam;

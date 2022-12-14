@@ -446,16 +446,12 @@ void Enemy::checkAndMove(Position checkPos, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WI
 }
 bool Enemy::dead(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 {
-	if (this->HP == 0 || map[this->pos.y][this->pos.x] == -99 || map[this->pos.y][this->pos.x] == -1)
+	if (this->alive && (this->HP == 0 || map[this->pos.y][this->pos.x] == -99 || map[this->pos.y][this->pos.x] == -1))
 	{
 		//if bumped by player
-		if (map[this->pos.y][this->pos.x] == -1 && this->alive)
+		if (map[this->pos.y][this->pos.x] == -1)
 		{
 			attacked = this->HP;
-		}
-		else if (this->itemRecord != 0 && map[this->pos.y][this->pos.x] == -99)
-		{
-			printBackRecord(map);
 		}
 		//ex bump into player
 		else
@@ -472,6 +468,9 @@ bool Enemy::dead(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 			}
 		}
 		this->alive = false;
+	}
+	if(!this->alive)
+	{
 		return true;
 	}
 	return false;
@@ -678,23 +677,33 @@ void EnemyRandom::enemyMove(int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])
 	//enemy move speed
 	this->moveCnt += this->speed;
 	//deciding move direction
+	if (step > 3 && this->moveCnt >= moveThershold)
+	{
+		int rn = 0;
+		srand(time(nullptr));
+		rn = (rand() + this->pos.x + this->pos.y) % 4 + 1 ;
+		this->direction = rn;
+		step = 0;
+	}
 	Position checkPos = decideCheckPos();
 	//change direction
-	if (step > 1 || meetWall(checkPos, map) || map[checkPos.y][checkPos.x] == -2 || map[checkPos.y][checkPos.x] > 90)//should be better
+	if (meetWall(checkPos, map) || map[checkPos.y][checkPos.x] == -2 || map[checkPos.y][checkPos.x] > 90)//should be better
 	{
-		int done = 0, rn = 0;
-		step = 0;
-		srand(time(nullptr));
-		while (done == 0)
+		switch(this->direction)
 		{
-			int temp = rand();
-			if (temp <= 29999)
-			{
-				rn = temp % 4;
-				done = 1;
-			}
+			case 1:
+				this->direction = 4;
+				break;
+			case 2:
+				this->direction = 3;
+				break;
+			case 3:
+				this->direction = 1;
+				break;
+			case 4:
+				this->direction = 2;
 		}
-		this->direction = rn + 1;
+		step = 0;
 	}
 	//if movable
 	else if (this->moveCnt >= moveThershold)
@@ -796,7 +805,7 @@ int direction(Position from, Position to);
 void printMap(int direction, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH]);
 //after game
 void gameEnding();
-void winning();
+void winning(int startTime);
 void losing();
 
 ////////////////////////////////////////////////////   
@@ -804,17 +813,12 @@ void losing();
 
 int main()
 {
-////////settings////////////////////////////////////
-
-	//threads
-	// thread t1(playSound);
-	
     //create map (-2 is the end)
     int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH] = 
     {
 /*0*/    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-/*1*/    1, 0, 1,92,92,92,92, 0, 1, 3, 1, 0, 1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2, 0, 3, 1, 2, 0, 3, 1, 2, 0, 3, 1, 2, 0, 3, 1, 3, 2, 3, 2, 3, 2, 3, 2, 1, 0, 0, 0, 0,93, 0,93, 0,93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,91, 4,91, 3,91, 2,91, 4,91, 3,91, 2,91, 4,91, 3,91, 2, 1, 1, 0, 0, 5, 5, 5, -2, 
-/*2*/    1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 3, 1, 0, 1, 0, 0, 1, 1, 1, 0,93, 2, 0, 1, 0, 1, 5, 1, 0, 1, 5, 1, 0, 1, 5, 1, 0, 1, 5, 1, 2, 3, 2, 3, 2, 3, 2, 3, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 2, 1, 4, 1, 5, 1, 
+/*1*/    1, 0, 1, 0,92,92,92, 0, 1, 3, 1, 0, 1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1, 2, 0, 3, 1, 2, 0, 3, 1, 2, 0, 3, 1, 2, 0, 3, 1, 3, 2, 3, 2, 3, 2, 3, 2, 1, 0, 0, 0, 0,93, 0,93, 0,93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,91, 4,91, 3,91, 2,91, 4,91, 3,91, 2,91, 4,91, 3,91, 2, 1, 1, 0, 0, 5, 5, 5, -2, 
+/*2*/    1, 0, 1,92, 0, 0, 0, 0, 1, 0, 1, 0, 1, 3, 1, 0, 1, 0, 0, 1, 1, 1, 0,93, 2, 0, 1, 0, 1, 5, 1, 0, 1, 5, 1, 0, 1, 5, 1, 0, 1, 5, 1, 2, 3, 2, 3, 2, 3, 2, 3, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 2, 1, 4, 1, 5, 1, 
 /*3*/    1, 0, 0, 0, 3, 2, 4, 0, 0, 0, 0, 0, 1, 2, 1, 0, 1, 1, 0, 1, 4, 4, 0,93, 0, 0, 1, 3, 1, 2, 1, 3, 1, 2, 1, 3, 1, 2, 1, 3, 1, 2, 1, 0, 1, 1, 1, 1, 1, 1, 5, 1, 0, 0, 0, 2, 3, 4, 0, 2, 3, 4, 0, 2, 3, 4, 0, 2, 3, 4, 1, 3, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 4, 0, 0, 4, 5, 1, 
 /*4*/    1, 0, 0, 0, 2, 2, 4, 4, 0, 1, 0, 0, 1, 3, 1, 0, 0, 0,93, 1, 4, 4, 0,93, 0, 3, 1, 0, 1, 0, 1, 0, 1, 0, 1,93, 1,93, 1,93, 1, 4, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 4, 0, 0, 2, 3, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 0, 0, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 5, 0, 0, 0, 1, 4, 2, 1, 0, 0, 4, 1, 
 /*5*/    1, 0, 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 1, 2, 1, 4, 4, 1, 1, 1, 1, 1, 0, 4, 0, 0, 1, 2, 1, 3, 1, 2, 1, 3, 1, 2, 1, 3, 1, 2, 1, 4, 1, 1, 1, 1, 1, 1, 5, 1, 0, 1, 1, 4, 0, 3, 2, 3, 2, 0, 1, 1, 2, 0, 0, 0,93,93, 0, 0, 5, 4, 1, 2, 0, 0, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 0, 0, 2, 1, 1, 4, 0, 1, 0, 4, 1, 
@@ -844,8 +848,12 @@ int main()
     
 ////////GAME START//////////////////////////////////
 
+    //threads
+	// thread t1(playMenu);
     // open menu
     menu();
+    //record time
+    clock_t startTime = clock();
 
 	//character settings 
 	//player
@@ -882,7 +890,7 @@ int main()
 	enemyTeam.addCEnemy({90, 1}, 20, 2, 4, 91);
 
 	enemyTeam.addCCEnemy({11, 10}, 20, 2, 4, 92);
-	enemyTeam.addCCEnemy({3, 1}, 20, 2, 3, 92);
+	enemyTeam.addCCEnemy({3, 2}, 20, 2, 3, 92);
 	enemyTeam.addCCEnemy({4, 1}, 20, 2, 3, 92);
 	enemyTeam.addCCEnemy({5, 1}, 20, 2, 3, 92);
 	enemyTeam.addCCEnemy({6, 1}, 20, 2, 3, 92);
@@ -975,6 +983,8 @@ int main()
     player.printStatus(); 
     printInfo();
     cursorTo(player.getPos().x, player.getPos().y);
+    //	PlaySound(nullptr, nullptr, 0);
+	// thread t2(playBattle);
 
 	//game resume
     while(gameRunning)
@@ -1037,11 +1047,11 @@ int main()
         //game over
         if (player.getPlayerHP() <= 0)
         {
+        	//	PlaySound(nullptr, nullptr, 0);
+        	// thread t3(playLose);
         	cursorTo(player.getPos().x, player.getPos().y);
         	Sleep(1000);
-
-			SetConsoleTextAttribute(hConsole, 13);
-
+        	SetConsoleTextAttribute(hConsole, 13);
         	cout << "*";
         	cursorTo(player.getPos().x, player.getPos().y);
         	Sleep(1000);
@@ -1049,9 +1059,7 @@ int main()
         	cursorTo(player.getPos().x, player.getPos().y);
         	Sleep(1000);
         	cout << " ";
-
-			SetConsoleTextAttribute(hConsole, 15);
-
+        	SetConsoleTextAttribute(hConsole, 15);
         	cursorTo(player.getPos().x, player.getPos().y);
         	Sleep(2000);
         	losing();
@@ -1059,12 +1067,18 @@ int main()
 		}
 		else if (win)
 		{
-			winning();
+			//	PlaySound(nullptr, nullptr, 0);
+			// thread t4(playWin);
+			winning(startTime);
 			gameRunning = false;
 		}
     }
 
+	//should I put all here?
 	//t1.join();
+	//t2.join();
+	//t3.join();
+	//t4.join();
 
     return 0;
 }
@@ -1689,31 +1703,38 @@ void printMap(int direction, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//clean sc
 //after game
 void gameEnding()
 {
-//	clock_t endTime = clock();
     system("cls");
     cout << "GAME OVER!" << "\n" ;
     cout << "YOUR SCORE: " << score << "\n";
-//    cout << "PLAYING TIME: " << endTime / CLOCKS_PER_SEC << "s" << "\n";
 	return;
 }
-void winning()
+void winning(int startTime)
 {
-//	change song
 //	PlaySound(nullptr, nullptr, 0);
 	clock_t endTime = clock();
-	string line1 = "        Congratulation! You Won!\n        Let's see how much score did you get!";
+	string line1 = " Congratulation! You Won!\n Let's see how much score did you get!";
 	delayPrint(line1);
-	string line2 = "so... the result is...!";
+	string line2 = " so... the result is...!";
 	delayPrint(line2);
 	gameEnding();
-	cout << "PLAYING TIME: " << endTime / CLOCKS_PER_SEC << "s" << "\n";
+	cout << "PLAYING TIME: " << (endTime / CLOCKS_PER_SEC) - (startTime / CLOCKS_PER_SEC) << "s" << "\n";
+	if (score < 0)
+	{
+		Sleep(3000);
+		string line3 = " ...\n Wait...\n How can you get a minus score...?";
+		delayPrint(line3);
+		string line4 = " Sorry! I just gave you the wrong one\n This should be the right one for you.";
+		delayPrint(line4);
+		losing();
+	}
 	return;
 }
 void losing()
 {
-	string line1 = "     So... You lose\n     But...you would like to try again, wouldn't you?\n";
+	//	PlaySound(nullptr, nullptr, 0);
+	string line1 = " You lose!\n But that's okay.\n Because you will try again, right?\n";
 	delayPrint(line1);
-	string line2 = "......\n (there is no result board since you have losen.)\n     (but you can try again.)";
+	string line2 = " ......\n (there should be no result board since you have losen.)\n (but you can try again.)";
 	delayPrint(line2);
 	return;
 }

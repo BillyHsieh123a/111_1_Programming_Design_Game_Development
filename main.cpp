@@ -95,11 +95,11 @@ void Player::printStatus()
 {
 	//clear
     cursorTo(0, MAP_SIZE_HEIGHT);
-    cout << "                                        ";
+    cout << "                                   ";
     cursorTo(0, MAP_SIZE_HEIGHT + 1);
-    cout << "                                        ";
+    cout << "                                   ";
     cursorTo(0, MAP_SIZE_HEIGHT + 3);
-    cout << "                                        ";
+    cout << "                                   ";
     cursorTo(0, MAP_SIZE_HEIGHT);
     //healthPoint
     SetConsoleTextAttribute(hConsole, 10);
@@ -1148,6 +1148,7 @@ void menu()
     int position = 1;
     bool change = false;
 
+	SetConsoleTextAttribute(hConsole, 13);
 	cursorTo(xStart - 13, yStart);
 	cout << " _   _ _____ _____  _   _ ________  ___  ___  ______ _____ \n";
 	Sleep(300);
@@ -1540,7 +1541,7 @@ void shoot(Position startPos, Position dir, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WI
 
 void printInfo()
 {
-    SetConsoleTextAttribute(hConsole, 8);
+    SetConsoleTextAttribute(hConsole, 15);
 
     cursorTo(MAP_SIZE_WIDTH + 5, 5);
     cout << "MOVE UP: " << "W" << "\n";
@@ -1560,7 +1561,34 @@ void printInfo()
     cursorTo(MAP_SIZE_WIDTH + 5, 12);
     cout << "QUIT: " << "Q" << "\n";          
 
-    SetConsoleTextAttribute(hConsole, 15);
+	int gap = 0;
+
+    SetConsoleTextAttribute(hConsole, 13);
+
+	cursorTo(xStart - 13, MAP_SIZE_HEIGHT + gap);
+	cout << " _   _ _____ _____  _   _ ________  ___  ___  ______ _____ \n";
+
+	SetConsoleTextAttribute(hConsole, 14);
+	cursorTo(xStart - 13, MAP_SIZE_HEIGHT + gap + 1);
+	cout << "| \\ | |_   _|  __ \\| | | |_   _|  \\/  | / _ \\ | ___ \\  ___| \n";
+
+	SetConsoleTextAttribute(hConsole, 15);
+	cursorTo(xStart - 13, MAP_SIZE_HEIGHT + gap + 2);
+	cout << "|  \\| | | | | |  \\/| |_| | | | | .  . |/ /_\\ \\| |_/ / |__ \n";
+	
+	SetConsoleTextAttribute(hConsole, 14);
+	cursorTo(xStart - 13, MAP_SIZE_HEIGHT + gap + 3);
+	cout << "| . ` | | | | | __ |  _  | | | | |\\/| ||  _  ||    /|  __| \n";
+	
+	SetConsoleTextAttribute(hConsole, 15);
+	cursorTo(xStart - 13, MAP_SIZE_HEIGHT + gap + 4);
+	cout << "| |\\  |_| |_| |_\\ \\| | | | | | | |  | || | | || |\\ \\| |___ \n";
+	
+	SetConsoleTextAttribute(hConsole, 14);
+	cursorTo(xStart - 13, MAP_SIZE_HEIGHT + gap + 5);
+	cout << "\\_| \\_/\\___/ \\____/\\_| |_/ \\_/ \\_|  |_/\\_| |_/\\_| \\_\\____/ \n";
+	
+	SetConsoleTextAttribute(hConsole, 15);	
 
 }
 

@@ -71,7 +71,7 @@ public:
 Player::Player()
 {
 	pos = {5, 5};
-	healthPoint = 3;
+	healthPoint = 10;
 	bulletNum = 0;
 	direction = 1;
 }
@@ -127,7 +127,7 @@ void Player::getItem(int itemNumber)
             bulletNum += 1;
             break;
         case 3:
-            healthPoint += 1;
+            healthPoint += 2;
             break;
         case 4:
             score += 1;

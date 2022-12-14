@@ -328,7 +328,7 @@ Enemy::Enemy()
 	speed = 0;
 	HP = 0;
 	direction = 4;
-	enemyID = 101;
+	enemyID = 0;
 	moveCnt = 0;
 	itemRecord = 0;
 	alive = true;
@@ -856,12 +856,12 @@ int main()
     //enemy(use array)
 	EnemyTeam enemyTeam;
 	enemyTeam.addCEnemy({11, 10}, 20, 3, 4, 101);//first is x, second is y
-	enemyTeam.addCCEnemy({3, 1}, 20, 3, 3, 101);
-	enemyTeam.addCCEnemy({4, 1}, 20, 3, 3, 101);
-	enemyTeam.addCCEnemy({5, 1}, 20, 3, 3, 101);
-	enemyTeam.addCCEnemy({6, 1}, 20, 3, 3, 101);
+	enemyTeam.addCCEnemy({3, 1}, 20, 3, 3, 102);
+	enemyTeam.addCCEnemy({4, 1}, 20, 3, 3, 102);
+	enemyTeam.addCCEnemy({5, 1}, 20, 3, 3, 102);
+	enemyTeam.addCCEnemy({6, 1}, 20, 3, 3, 102);
 	enemyTeam.addCEnemy({18, 12}, 20, 3, 4, 101);
-	enemyTeam.addREnemy({4, 16}, 20, 3, 4, 101);
+	enemyTeam.addREnemy({4, 16}, 20, 3, 4, 103);
 
 	//print map and info
     system("cls");
@@ -1525,8 +1525,8 @@ void printMap(int direction, int map[MAP_SIZE_HEIGHT][MAP_SIZE_WIDTH])//clean sc
             }
             else if(map[i][j] == -2) //end
             {
-                SetConsoleTextAttribute(hConsole, 8);
-                cout << "O";
+                SetConsoleTextAttribute(hConsole, 12);
+                cout << "X";
                 SetConsoleTextAttribute(hConsole, 15);
             }
         }
